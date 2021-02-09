@@ -1,8 +1,11 @@
-# YOLOV4 tiny + lane detect in Android with 8 FPS!
+# YOLOV4 tiny + lane detection on Android with 8 FPS!
 
 Tested with HONOR 20PRO
 Test video :
+
 https://www.bilibili.com/video/BV1xv411e7zJ/
+
+https://www.bilibili.com/video/BV18K4y1n7Ht/
 
 <img width="100%" src="https://github.com/youkpan/Hayoou_salfe_driving_android/blob/master/screenshot.jpg"/>
 
