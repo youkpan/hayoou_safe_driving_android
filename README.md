@@ -4,7 +4,7 @@ Tested with HONOR 20PRO
 Test video :
 https://www.bilibili.com/video/BV1xv411e7zJ/
 
-<img width="585" height="270" src="https://github.com/youkpan/Hayoou_salfe_driving_android/blob/master/screenshot.jpg"/>
+<img width="100%" src="https://github.com/youkpan/Hayoou_salfe_driving_android/blob/master/screenshot.jpg"/>
 
 Published at :
 http://hayoou.com/adas
