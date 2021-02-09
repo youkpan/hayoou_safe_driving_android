@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#2E2E36</color>
+    <color name="colorPrimaryDark">#2E2E36</color>
+    <color name="colorAccent">#087DFD</color>
+
+    <color name="imageResultbg">#EEEEEE</color>
+
+    <color name="Transparent">#00000000</color>
+    <color name="halfdark">#81333333</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">哈友安全辅助驾驶</string>
+    <string name="image_view">Image View</string>
+    <string name="detect">测试</string>
+    <string name="setting">设置</string>
+    <string name="run_model">Running the model...</string>
+    <string name="restart">Restart</string>
+    <string name="webbutton">APP更新</string>
+    <string name="aboutus">关于我们</string>
+    <string name="exiting">退出</string>
+    <string name="select">Select</string>
+    <string name="live">启动安全辅助</string>
+    <string name="app_title">哈友辅助驾驶</string>
+    <string name="app_author">pan</string>
+</resources>

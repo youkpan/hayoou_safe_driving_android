@@ -1,0 +1,425 @@
+7767517
+423 497
+Input                    images                   0 1 images
+Input                    masks                    0 1 masks
+MemoryData               1059                     0 1 1059 0=16 1=7 2=2
+MemoryData               1506                     0 1 1506 0=4
+MemoryData               1508                     0 1 1508 0=4
+MemoryData               1522                     0 1 1522 0=2
+Split                    splitncnn_0              1 2 1522 1522_splitncnn_0 1522_splitncnn_1
+MemoryData               1598                     0 1 1598 0=1 1=1 2=16
+MemoryData               1600                     0 1 1600 0=1 1=1 2=16
+MemoryData               170                      0 1 170 0=32
+MemoryData               171                      0 1 171 0=32
+MemoryData               174                      0 1 174 0=32
+MemoryData               175                      0 1 175 0=32
+MemoryData               192                      0 1 192 0=32
+MemoryData               193                      0 1 193 0=32
+MemoryData               196                      0 1 196 0=32
+MemoryData               197                      0 1 197 0=32
+MemoryData               230                      0 1 230 0=32
+MemoryData               231                      0 1 231 0=32
+MemoryData               234                      0 1 234 0=32
+MemoryData               235                      0 1 235 0=32
+MemoryData               260                      0 1 260 0=32
+MemoryData               261                      0 1 261 0=32
+MemoryData               264                      0 1 264 0=32
+MemoryData               265                      0 1 265 0=32
+MemoryData               268                      0 1 268 0=32
+MemoryData               269                      0 1 269 0=32
+MemoryData               272                      0 1 272 0=32
+Split                    splitncnn_1              1 2 272 272_splitncnn_0 272_splitncnn_1
+MemoryData               273                      0 1 273 0=32
+Split                    splitncnn_2              1 2 273 273_splitncnn_0 273_splitncnn_1
+MemoryData               374                      0 1 374 0=2
+Split                    splitncnn_3              1 2 374 374_splitncnn_0 374_splitncnn_1
+MemoryData               400                      0 1 400 0=1
+MemoryData               403                      0 1 403 0=1
+MemoryData               427                      0 1 427 0=16
+Split                    splitncnn_4              1 2 427 427_splitncnn_0 427_splitncnn_1
+MemoryData               516                      0 1 516 0=32 1=1 2=7
+Split                    splitncnn_5              1 2 516 516_splitncnn_0 516_splitncnn_1
+MemoryData               630                      0 1 630 0=1
+Split                    splitncnn_6              1 4 630 630_splitncnn_0 630_splitncnn_1 630_splitncnn_2 630_splitncnn_3
+MemoryData               981                      0 1 981 0=32 1=1 2=7
+Convolution              Conv_0                   1 1 images 298 0=16 1=7 3=2 4=3 6=2352
+BinaryOp                 Mul_1                    2 1 298 1598 315 0=2
+BinaryOp                 Add_2                    2 1 315 1600 316
+ReLU                     Relu_3                   1 1 316 317
+Pooling                  MaxPool_4                1 1 317 318 1=3 2=2 3=1 5=1
+Split                    splitncnn_7              1 2 318 318_splitncnn_0 318_splitncnn_1
+Convolution              Conv_5                   1 1 318_splitncnn_1 321 0=16 1=3 4=1 5=1 6=2304 9=1
+Convolution              Conv_7                   1 1 321 1543 0=16 1=3 4=1 5=1 6=2304
+BinaryOp                 Add_8                    2 1 1543 318_splitncnn_0 324
+ReLU                     Relu_9                   1 1 324 325
+Split                    splitncnn_8              1 2 325 325_splitncnn_0 325_splitncnn_1
+Convolution              Conv_10                  1 1 325_splitncnn_1 328 0=32 1=3 3=2 4=1 5=1 6=4608 9=1
+Convolution              Conv_12                  1 1 328 1549 0=32 1=3 4=1 5=1 6=9216
+Convolution              Conv_13                  1 1 325_splitncnn_0 1552 0=32 1=1 3=2 5=1 6=512
+BinaryOp                 Add_14                   2 1 1549 1552 333
+ReLU                     Relu_15                  1 1 333 334
+Split                    splitncnn_9              1 2 334 334_splitncnn_0 334_splitncnn_1
+Convolution              Conv_16                  1 1 334_splitncnn_1 337 0=32 1=3 4=1 5=1 6=9216 9=1
+Convolution              Conv_18                  1 1 337 1558 0=32 1=3 4=1 5=1 6=9216
+BinaryOp                 Add_19                   2 1 1558 334_splitncnn_0 340
+ReLU                     Relu_20                  1 1 340 341
+Split                    splitncnn_10             1 2 341 341_splitncnn_0 341_splitncnn_1
+Convolution              Conv_21                  1 1 341_splitncnn_1 344 0=64 1=3 3=2 4=1 5=1 6=18432 9=1
+Convolution              Conv_23                  1 1 344 1564 0=64 1=3 4=1 5=1 6=36864
+Convolution              Conv_24                  1 1 341_splitncnn_0 1567 0=64 1=1 3=2 5=1 6=2048
+BinaryOp                 Add_25                   2 1 1564 1567 349
+ReLU                     Relu_26                  1 1 349 350
+Split                    splitncnn_11             1 2 350 350_splitncnn_0 350_splitncnn_1
+Convolution              Conv_27                  1 1 350_splitncnn_1 353 0=64 1=3 4=1 5=1 6=36864 9=1
+Convolution              Conv_29                  1 1 353 1573 0=64 1=3 4=1 5=1 6=36864
+BinaryOp                 Add_30                   2 1 1573 350_splitncnn_0 356
+ReLU                     Relu_31                  1 1 356 357
+Split                    splitncnn_12             1 2 357 357_splitncnn_0 357_splitncnn_1
+Convolution              Conv_32                  1 1 357_splitncnn_1 360 0=128 1=3 3=2 4=1 5=1 6=73728 9=1
+Convolution              Conv_34                  1 1 360 1579 0=128 1=3 4=1 5=1 6=147456
+Convolution              Conv_35                  1 1 357_splitncnn_0 1582 0=128 1=1 3=2 5=1 6=8192
+BinaryOp                 Add_36                   2 1 1579 1582 365
+ReLU                     Relu_37                  1 1 365 366
+Split                    splitncnn_13             1 2 366 366_splitncnn_0 366_splitncnn_1
+Convolution              Conv_38                  1 1 366_splitncnn_1 369 0=128 1=3 4=1 5=1 6=147456 9=1
+Convolution              Conv_40                  1 1 369 1588 0=128 1=3 4=1 5=1 6=147456
+BinaryOp                 Add_41                   2 1 1588 366_splitncnn_0 372
+ReLU                     Relu_42                  1 1 372 373
+Gather                   Gather_44                2 1 masks 374_splitncnn_1 375
+ExpandDims               Unsqueeze_45             1 1 375 376 -23300=1,0
+Interp                   Resize_64                1 1 376 395 0=1 3=12 4=20
+Cast                     Cast_65                  1 1 395 396
+Gather                   Gather_67                2 1 396 374_splitncnn_0 398
+Split                    splitncnn_14             1 2 398 398_splitncnn_0 398_splitncnn_1
+Not                      Not_68                   1 1 398_splitncnn_1 399
+Split                    splitncnn_15             1 2 399 399_splitncnn_0 399_splitncnn_1
+Cast                     Cast_70                  1 1 399_splitncnn_1 401
+CumSum                   CumSum_71                2 1 401 400 402
+Split                    splitncnn_16             1 2 402 402_splitncnn_0 402_splitncnn_1
+Cast                     Cast_73                  1 1 399_splitncnn_0 404
+CumSum                   CumSum_74                2 1 404 403 405
+Split                    splitncnn_17             1 2 405 405_splitncnn_0 405_splitncnn_1
+Crop                     Slice_79                 1 1 402_splitncnn_1 410 -23309=1,-1 -23310=1,2147483647 -23311=1,0
+BinaryOp                 Add_81                   1 1 410 412 1=1 2=1.000000e-06
+BinaryOp                 Div_82                   2 1 402_splitncnn_0 412 413 0=3
+BinaryOp                 Mul_84                   1 1 413 415 0=2 1=1 2=6.283185e+00
+Crop                     Slice_89                 1 1 405_splitncnn_1 420 -23309=1,-1 -23310=1,2147483647 -23311=1,1
+BinaryOp                 Add_91                   1 1 420 422 1=1 2=1.000000e-06
+BinaryOp                 Div_92                   2 1 405_splitncnn_0 422 423 0=3
+BinaryOp                 Mul_94                   1 1 423 425 0=2 1=1 2=6.283185e+00
+ExpandDims               Unsqueeze_95             1 1 425 426 -23300=1,3
+BinaryOp                 Div_97                   2 1 426 427_splitncnn_1 428 0=3
+Split                    splitncnn_18             1 2 428 428_splitncnn_0 428_splitncnn_1
+ExpandDims               Unsqueeze_98             1 1 415 429 -23300=1,3
+BinaryOp                 Div_100                  2 1 429 427_splitncnn_0 431 0=3
+Split                    splitncnn_19             1 2 431 431_splitncnn_0 431_splitncnn_1
+Crop                     Slice_105                1 1 428_splitncnn_1 436 -23309=1,0 -23310=1,2147483647 -23311=1,2
+UnaryOp                  Sin_106                  1 1 436 437 0=9
+Crop                     Slice_111                1 1 428_splitncnn_0 442 -23309=1,1 -23310=1,2147483647 -23311=1,2
+UnaryOp                  Cos_112                  1 1 442 443 0=10
+ExpandDims               Unsqueeze_113            1 1 437 444 -23300=1,4
+ExpandDims               Unsqueeze_114            1 1 443 445 -23300=1,4
+Concat                   Concat_115               2 1 444 445 446 0=3
+Reshape                  Reshape_123              1 1 446 454 0=-1 1=20 2=12
+Crop                     Slice_128                1 1 431_splitncnn_1 459 -23309=1,0 -23310=1,2147483647 -23311=1,2
+UnaryOp                  Sin_129                  1 1 459 460 0=9
+Crop                     Slice_134                1 1 431_splitncnn_0 465 -23309=1,1 -23310=1,2147483647 -23311=1,2
+UnaryOp                  Cos_135                  1 1 465 466 0=10
+ExpandDims               Unsqueeze_136            1 1 460 467 -23300=1,4
+ExpandDims               Unsqueeze_137            1 1 466 468 -23300=1,4
+Concat                   Concat_138               2 1 467 468 469 0=3
+Reshape                  Reshape_146              1 1 469 477 0=-1 1=20 2=12
+Concat                   Concat_147               2 1 477 454 478 0=2
+Permute                  Transpose_148            1 1 478 479 0=4
+Convolution              Conv_149                 1 1 373 480 0=32 1=1 5=1 6=4096
+Reshape                  Reshape_160              1 1 480 491 0=-1 1=32
+Permute                  Transpose_161            1 1 491 492 0=1
+Split                    splitncnn_20             1 3 492 492_splitncnn_0 492_splitncnn_1 492_splitncnn_2
+Reshape                  Reshape_169              1 1 479 500 0=-1 1=32
+Permute                  Transpose_170            1 1 500 501 0=1
+Split                    splitncnn_21             1 4 501 501_splitncnn_0 501_splitncnn_1 501_splitncnn_2 501_splitncnn_3
+Flatten                  Flatten_179              1 1 398_splitncnn_0 517
+Split                    splitncnn_22             1 4 517 517_splitncnn_0 517_splitncnn_1 517_splitncnn_2 517_splitncnn_3
+BinaryOp                 Add_182                  2 1 492_splitncnn_2 501_splitncnn_3 520
+Split                    splitncnn_23             1 2 520 520_splitncnn_0 520_splitncnn_1
+InnerProduct             MatMul_203               1 1 520_splitncnn_1 550 0=32 1=1 2=1024
+InnerProduct             MatMul_216               1 1 520_splitncnn_0 567 0=32 1=1 2=1024
+InnerProduct             MatMul_227               1 1 492_splitncnn_1 586 0=32 1=1 2=1024
+BinaryOp                 Mul_230                  1 1 550 588 0=2 1=1 2=2.500000e-01
+Reshape                  Reshape_237              1 1 588 595 0=16 1=2
+Permute                  Transpose_238            1 1 595 596
+Reshape                  Reshape_244              1 1 567 604 0=16 1=2
+Reshape                  Reshape_251              1 1 586 613 0=16 1=2
+Permute                  Transpose_252            1 1 613 614
+Permute                  Transpose_256            1 1 604 618
+Gemm                     MatMul_257               2 1 596 618 619
+Reshape                  Reshape_262              1 1 619 626 0=240 1=240 2=2
+ExpandDims               Unsqueeze_263            1 1 517_splitncnn_3 627 -23300=1,1
+ExpandDims               Unsqueeze_264            1 1 627 628 -23300=1,2
+Where                    Where_267                3 1 628 630_splitncnn_3 626 631
+Reshape                  Reshape_274              1 1 631 638 0=240 1=240
+Softmax                  Softmax_275              1 1 638 639 0=1 1=1
+Gemm                     MatMul_276               2 1 639 614 640
+Permute                  Transpose_277            1 1 640 641
+Reshape                  Reshape_282              1 1 641 646 0=32 1=1
+InnerProduct             MatMul_283               1 1 646 649 0=32 1=1 2=1024
+BinaryOp                 Add_285                  2 1 492_splitncnn_0 649 650
+Split                    splitncnn_24             1 2 650 650_splitncnn_0 650_splitncnn_1
+Reduction                ReduceMean_286           1 1 650_splitncnn_1 652 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_287                  2 1 650_splitncnn_0 652 653 0=1
+Split                    splitncnn_25             1 2 653 653_splitncnn_0 653_splitncnn_1
+BinaryOp                 Pow_289                  1 1 653_splitncnn_1 656 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_290           1 1 656 657 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_292                  1 1 657 659 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_293                 1 1 659 660 0=5
+BinaryOp                 Div_294                  2 1 653_splitncnn_0 660 661 0=3
+BinaryOp                 Mul_295                  2 1 661 170 662 0=2
+BinaryOp                 Add_296                  2 1 662 171 663
+Split                    splitncnn_26             1 2 663 663_splitncnn_0 663_splitncnn_1
+InnerProduct             MatMul_297               1 1 663_splitncnn_1 667 0=128 1=1 2=4096 9=1
+InnerProduct             MatMul_300               1 1 667 670 0=32 1=1 2=4096
+BinaryOp                 Add_302                  2 1 663_splitncnn_0 670 671
+Split                    splitncnn_27             1 2 671 671_splitncnn_0 671_splitncnn_1
+Reduction                ReduceMean_303           1 1 671_splitncnn_1 673 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_304                  2 1 671_splitncnn_0 673 674 0=1
+Split                    splitncnn_28             1 2 674 674_splitncnn_0 674_splitncnn_1
+BinaryOp                 Pow_306                  1 1 674_splitncnn_1 677 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_307           1 1 677 678 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_309                  1 1 678 680 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_310                 1 1 680 681 0=5
+BinaryOp                 Div_311                  2 1 674_splitncnn_0 681 682 0=3
+BinaryOp                 Mul_312                  2 1 682 174 683 0=2
+BinaryOp                 Add_313                  2 1 683 175 684
+Split                    splitncnn_29             1 3 684 684_splitncnn_0 684_splitncnn_1 684_splitncnn_2
+BinaryOp                 Add_314                  2 1 684_splitncnn_2 501_splitncnn_2 685
+Split                    splitncnn_30             1 2 685 685_splitncnn_0 685_splitncnn_1
+InnerProduct             MatMul_335               1 1 685_splitncnn_1 715 0=32 1=1 2=1024
+InnerProduct             MatMul_348               1 1 685_splitncnn_0 732 0=32 1=1 2=1024
+InnerProduct             MatMul_359               1 1 684_splitncnn_1 751 0=32 1=1 2=1024
+BinaryOp                 Mul_362                  1 1 715 753 0=2 1=1 2=2.500000e-01
+Reshape                  Reshape_369              1 1 753 760 0=16 1=2
+Permute                  Transpose_370            1 1 760 761
+Reshape                  Reshape_376              1 1 732 769 0=16 1=2
+Reshape                  Reshape_383              1 1 751 778 0=16 1=2
+Permute                  Transpose_384            1 1 778 779
+Permute                  Transpose_388            1 1 769 783
+Gemm                     MatMul_389               2 1 761 783 784
+Reshape                  Reshape_394              1 1 784 791 0=240 1=240 2=2
+ExpandDims               Unsqueeze_395            1 1 517_splitncnn_2 792 -23300=1,1
+ExpandDims               Unsqueeze_396            1 1 792 793 -23300=1,2
+Where                    Where_399                3 1 793 630_splitncnn_2 791 796
+Reshape                  Reshape_406              1 1 796 803 0=240 1=240
+Softmax                  Softmax_407              1 1 803 804 0=1 1=1
+Split                    splitncnn_31             1 2 804 804_splitncnn_0 804_splitncnn_1
+Gemm                     MatMul_408               2 1 804_splitncnn_1 779 805
+Permute                  Transpose_409            1 1 805 806
+Reshape                  Reshape_414              1 1 806 811 0=32 1=1
+InnerProduct             MatMul_415               1 1 811 814 0=32 1=1 2=1024
+Reshape                  Reshape_421              1 1 804_splitncnn_0 821 0=240 1=240 2=2
+Reduction                ReduceSum_422            1 1 821 822 1=0 -23303=1,1
+BinaryOp                 Div_423                  1 1 822 825 0=3 1=1 2=2.000000e+00
+BinaryOp                 Add_424                  2 1 684_splitncnn_0 814 826
+Split                    splitncnn_32             1 2 826 826_splitncnn_0 826_splitncnn_1
+Reduction                ReduceMean_425           1 1 826_splitncnn_1 828 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_426                  2 1 826_splitncnn_0 828 829 0=1
+Split                    splitncnn_33             1 2 829 829_splitncnn_0 829_splitncnn_1
+BinaryOp                 Pow_428                  1 1 829_splitncnn_1 832 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_429           1 1 832 833 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_431                  1 1 833 835 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_432                 1 1 835 836 0=5
+BinaryOp                 Div_433                  2 1 829_splitncnn_0 836 837 0=3
+BinaryOp                 Mul_434                  2 1 837 192 838 0=2
+BinaryOp                 Add_435                  2 1 838 193 839
+Split                    splitncnn_34             1 2 839 839_splitncnn_0 839_splitncnn_1
+InnerProduct             MatMul_436               1 1 839_splitncnn_1 843 0=128 1=1 2=4096 9=1
+InnerProduct             MatMul_439               1 1 843 846 0=32 1=1 2=4096
+BinaryOp                 Add_441                  2 1 839_splitncnn_0 846 847
+Split                    splitncnn_35             1 2 847 847_splitncnn_0 847_splitncnn_1
+Reduction                ReduceMean_442           1 1 847_splitncnn_1 849 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_443                  2 1 847_splitncnn_0 849 850 0=1
+Split                    splitncnn_36             1 2 850 850_splitncnn_0 850_splitncnn_1
+BinaryOp                 Pow_445                  1 1 850_splitncnn_1 853 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_446           1 1 853 854 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_448                  1 1 854 856 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_449                 1 1 856 857 0=5
+BinaryOp                 Div_450                  2 1 850_splitncnn_0 857 858 0=3
+BinaryOp                 Mul_451                  2 1 858 196 859 0=2
+BinaryOp                 Add_452                  2 1 859 197 860
+Split                    splitncnn_37             1 4 860 860_splitncnn_0 860_splitncnn_1 860_splitncnn_2 860_splitncnn_3
+BinaryOp                 Add_548                  2 1 860_splitncnn_3 501_splitncnn_1 983
+InnerProduct             MatMul_582               1 1 983 1030 0=32 1=1 2=1024
+InnerProduct             MatMul_593               1 1 860_splitncnn_2 1049 0=32 1=1 2=1024
+Reshape                  Reshape_610              1 1 1030 1067 0=16 1=2
+Reshape                  Reshape_617              1 1 1049 1076 0=16 1=2
+Permute                  Transpose_618            1 1 1076 1077
+Permute                  Transpose_622            1 1 1067 1081
+Gemm                     MatMul_623               2 1 1059 1081 1082
+Reshape                  Reshape_628              1 1 1082 1089 0=240 1=7 2=2
+ExpandDims               Unsqueeze_629            1 1 517_splitncnn_1 1090 -23300=1,1
+ExpandDims               Unsqueeze_630            1 1 1090 1091 -23300=1,2
+Where                    Where_633                3 1 1091 630_splitncnn_1 1089 1094
+Reshape                  Reshape_640              1 1 1094 1101 0=240 1=7
+Softmax                  Softmax_641              1 1 1101 1102 0=1 1=1
+Gemm                     MatMul_642               2 1 1102 1077 1103
+Permute                  Transpose_643            1 1 1103 1104
+Reshape                  Reshape_648              1 1 1104 1109 0=32 1=1
+InnerProduct             MatMul_649               1 1 1109 1112 0=32 1=1 2=1024
+BinaryOp                 Add_651                  2 1 981 1112 1113
+Split                    splitncnn_38             1 2 1113 1113_splitncnn_0 1113_splitncnn_1
+Reduction                ReduceMean_652           1 1 1113_splitncnn_1 1115 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_653                  2 1 1113_splitncnn_0 1115 1116 0=1
+Split                    splitncnn_39             1 2 1116 1116_splitncnn_0 1116_splitncnn_1
+BinaryOp                 Pow_655                  1 1 1116_splitncnn_1 1119 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_656           1 1 1119 1120 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_658                  1 1 1120 1122 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_659                 1 1 1122 1123 0=5
+BinaryOp                 Div_660                  2 1 1116_splitncnn_0 1123 1124 0=3
+BinaryOp                 Mul_661                  2 1 1124 230 1125 0=2
+BinaryOp                 Add_662                  2 1 1125 231 1126
+Split                    splitncnn_40             1 2 1126 1126_splitncnn_0 1126_splitncnn_1
+InnerProduct             MatMul_663               1 1 1126_splitncnn_1 1130 0=128 1=1 2=4096 9=1
+InnerProduct             MatMul_666               1 1 1130 1133 0=32 1=1 2=4096
+BinaryOp                 Add_668                  2 1 1126_splitncnn_0 1133 1134
+Split                    splitncnn_41             1 2 1134 1134_splitncnn_0 1134_splitncnn_1
+Reduction                ReduceMean_669           1 1 1134_splitncnn_1 1136 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_670                  2 1 1134_splitncnn_0 1136 1137 0=1
+Split                    splitncnn_42             1 2 1137 1137_splitncnn_0 1137_splitncnn_1
+BinaryOp                 Pow_672                  1 1 1137_splitncnn_1 1140 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_673           1 1 1140 1141 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_675                  1 1 1141 1143 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_676                 1 1 1143 1144 0=5
+BinaryOp                 Div_677                  2 1 1137_splitncnn_0 1144 1145 0=3
+BinaryOp                 Mul_678                  2 1 1145 234 1146 0=2
+BinaryOp                 Add_679                  2 1 1146 235 1147
+Split                    splitncnn_43             1 5 1147 1147_splitncnn_0 1147_splitncnn_1 1147_splitncnn_2 1147_splitncnn_3 1147_splitncnn_4
+Reduction                ReduceMean_680           1 1 1147_splitncnn_4 1149 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_681                  2 1 1147_splitncnn_3 1149 1150 0=1
+Split                    splitncnn_44             1 2 1150 1150_splitncnn_0 1150_splitncnn_1
+BinaryOp                 Pow_683                  1 1 1150_splitncnn_1 1153 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_684           1 1 1153 1154 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_686                  1 1 1154 1156 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_687                 1 1 1156 1157 0=5
+BinaryOp                 Div_688                  2 1 1150_splitncnn_0 1157 1158 0=3
+BinaryOp                 Mul_689                  2 1 1158 272_splitncnn_1 1159 0=2
+BinaryOp                 Add_690                  2 1 1159 273_splitncnn_1 1160
+BinaryOp                 Add_691                  2 1 1147_splitncnn_2 516_splitncnn_1 1161
+Split                    splitncnn_45             1 2 1161 1161_splitncnn_0 1161_splitncnn_1
+InnerProduct             MatMul_712               1 1 1161_splitncnn_1 1191 0=32 1=1 2=1024
+InnerProduct             MatMul_725               1 1 1161_splitncnn_0 1208 0=32 1=1 2=1024
+InnerProduct             MatMul_736               1 1 1147_splitncnn_1 1227 0=32 1=1 2=1024
+BinaryOp                 Mul_739                  1 1 1191 1229 0=2 1=1 2=2.500000e-01
+Reshape                  Reshape_746              1 1 1229 1236 0=16 1=2
+Permute                  Transpose_747            1 1 1236 1237
+Reshape                  Reshape_753              1 1 1208 1245 0=16 1=2
+Reshape                  Reshape_759              1 1 1227 1253 0=16 1=2
+Permute                  Transpose_760            1 1 1253 1254
+Permute                  Transpose_761            1 1 1245 1255
+Gemm                     MatMul_762               2 1 1237 1255 1256
+Softmax                  Softmax_763              1 1 1256 1257 0=1 1=1
+Gemm                     MatMul_764               2 1 1257 1254 1258
+Permute                  Transpose_765            1 1 1258 1259
+Reshape                  Reshape_770              1 1 1259 1264 0=32 1=1
+InnerProduct             MatMul_771               1 1 1264 1267 0=32 1=1 2=1024
+BinaryOp                 Add_773                  2 1 1147_splitncnn_0 1267 1268
+Split                    splitncnn_46             1 2 1268 1268_splitncnn_0 1268_splitncnn_1
+Reduction                ReduceMean_774           1 1 1268_splitncnn_1 1270 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_775                  2 1 1268_splitncnn_0 1270 1271 0=1
+Split                    splitncnn_47             1 2 1271 1271_splitncnn_0 1271_splitncnn_1
+BinaryOp                 Pow_777                  1 1 1271_splitncnn_1 1274 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_778           1 1 1274 1275 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_780                  1 1 1275 1277 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_781                 1 1 1277 1278 0=5
+BinaryOp                 Div_782                  2 1 1271_splitncnn_0 1278 1279 0=3
+BinaryOp                 Mul_783                  2 1 1279 260 1280 0=2
+BinaryOp                 Add_784                  2 1 1280 261 1281
+Split                    splitncnn_48             1 2 1281 1281_splitncnn_0 1281_splitncnn_1
+BinaryOp                 Add_785                  2 1 1281_splitncnn_1 516_splitncnn_0 1282
+BinaryOp                 Add_786                  2 1 860_splitncnn_1 501_splitncnn_0 1283
+InnerProduct             MatMul_807               1 1 1282 1313 0=32 1=1 2=1024
+InnerProduct             MatMul_820               1 1 1283 1330 0=32 1=1 2=1024
+InnerProduct             MatMul_831               1 1 860_splitncnn_0 1349 0=32 1=1 2=1024
+BinaryOp                 Mul_834                  1 1 1313 1351 0=2 1=1 2=2.500000e-01
+Reshape                  Reshape_841              1 1 1351 1358 0=16 1=2
+Permute                  Transpose_842            1 1 1358 1359
+Reshape                  Reshape_848              1 1 1330 1367 0=16 1=2
+Reshape                  Reshape_855              1 1 1349 1376 0=16 1=2
+Permute                  Transpose_856            1 1 1376 1377
+Permute                  Transpose_860            1 1 1367 1381
+Gemm                     MatMul_861               2 1 1359 1381 1382
+Reshape                  Reshape_866              1 1 1382 1389 0=240 1=7 2=2
+ExpandDims               Unsqueeze_867            1 1 517_splitncnn_0 1390 -23300=1,1
+ExpandDims               Unsqueeze_868            1 1 1390 1391 -23300=1,2
+Where                    Where_871                3 1 1391 630_splitncnn_0 1389 1394
+Reshape                  Reshape_878              1 1 1394 1401 0=240 1=7
+Softmax                  Softmax_879              1 1 1401 1402 0=1 1=1
+Gemm                     MatMul_880               2 1 1402 1377 1403
+Permute                  Transpose_881            1 1 1403 1404
+Reshape                  Reshape_886              1 1 1404 1409 0=32 1=1
+InnerProduct             MatMul_887               1 1 1409 1412 0=32 1=1 2=1024
+BinaryOp                 Add_889                  2 1 1281_splitncnn_0 1412 1413
+Split                    splitncnn_49             1 2 1413 1413_splitncnn_0 1413_splitncnn_1
+Reduction                ReduceMean_890           1 1 1413_splitncnn_1 1415 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_891                  2 1 1413_splitncnn_0 1415 1416 0=1
+Split                    splitncnn_50             1 2 1416 1416_splitncnn_0 1416_splitncnn_1
+BinaryOp                 Pow_893                  1 1 1416_splitncnn_1 1419 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_894           1 1 1419 1420 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_896                  1 1 1420 1422 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_897                 1 1 1422 1423 0=5
+BinaryOp                 Div_898                  2 1 1416_splitncnn_0 1423 1424 0=3
+BinaryOp                 Mul_899                  2 1 1424 264 1425 0=2
+BinaryOp                 Add_900                  2 1 1425 265 1426
+Split                    splitncnn_51             1 2 1426 1426_splitncnn_0 1426_splitncnn_1
+InnerProduct             MatMul_901               1 1 1426_splitncnn_1 1430 0=128 1=1 2=4096 9=1
+InnerProduct             MatMul_904               1 1 1430 1433 0=32 1=1 2=4096
+BinaryOp                 Add_906                  2 1 1426_splitncnn_0 1433 1434
+Split                    splitncnn_52             1 2 1434 1434_splitncnn_0 1434_splitncnn_1
+Reduction                ReduceMean_907           1 1 1434_splitncnn_1 1436 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_908                  2 1 1434_splitncnn_0 1436 1437 0=1
+Split                    splitncnn_53             1 2 1437 1437_splitncnn_0 1437_splitncnn_1
+BinaryOp                 Pow_910                  1 1 1437_splitncnn_1 1440 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_911           1 1 1440 1441 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_913                  1 1 1441 1443 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_914                 1 1 1443 1444 0=5
+BinaryOp                 Div_915                  2 1 1437_splitncnn_0 1444 1445 0=3
+BinaryOp                 Mul_916                  2 1 1445 268 1446 0=2
+BinaryOp                 Add_917                  2 1 1446 269 1447
+Split                    splitncnn_54             1 2 1447 1447_splitncnn_0 1447_splitncnn_1
+Reduction                ReduceMean_918           1 1 1447_splitncnn_1 1449 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Sub_919                  2 1 1447_splitncnn_0 1449 1450 0=1
+Split                    splitncnn_55             1 2 1450 1450_splitncnn_0 1450_splitncnn_1
+BinaryOp                 Pow_921                  1 1 1450_splitncnn_1 1453 0=6 1=1 2=2.000000e+00
+Reduction                ReduceMean_922           1 1 1453 1454 0=3 1=0 -23303=1,-1 4=1
+BinaryOp                 Add_924                  1 1 1454 1456 1=1 2=1.000000e-05
+UnaryOp                  Sqrt_925                 1 1 1456 1457 0=5
+BinaryOp                 Div_926                  2 1 1450_splitncnn_0 1457 1458 0=3
+BinaryOp                 Mul_927                  2 1 1458 272_splitncnn_0 1459 0=2
+BinaryOp                 Add_928                  2 1 1459 273_splitncnn_0 1460
+ExpandDims               Unsqueeze_929            1 1 1160 1461 -23300=1,0
+ExpandDims               Unsqueeze_930            1 1 1460 1462 -23300=1,0
+Concat                   Concat_931               2 1 1461 1462 1463 0=-1
+Permute                  Transpose_932            1 1 1463 1464 0=2
+Split                    splitncnn_56             1 3 1464 1464_splitncnn_0 1464_splitncnn_1 1464_splitncnn_2
+InnerProduct             MatMul_933               1 1 1464_splitncnn_2 1467 0=3 1=1 2=96
+Split                    splitncnn_57             1 2 1467 1467_splitncnn_0 1467_splitncnn_1
+InnerProduct             MatMul_935               1 1 1464_splitncnn_1 1471 0=32 1=1 2=1024 9=1
+InnerProduct             MatMul_938               1 1 1471 1475 0=32 1=1 2=1024 9=1
+InnerProduct             MatMul_941               1 1 1475 1478 0=4 1=1 2=128
+Split                    splitncnn_58             1 2 1478 1478_splitncnn_0 1478_splitncnn_1
+InnerProduct             MatMul_943               1 1 1464_splitncnn_0 1482 0=32 1=1 2=1024 9=1
+InnerProduct             MatMul_946               1 1 1482 1486 0=32 1=1 2=1024 9=1
+InnerProduct             MatMul_949               1 1 1486 1489 0=4 1=1 2=128
+Reduction                ReduceMean_951           1 1 1489 1490 0=3 1=0 -23303=1,-2 4=1
+Expand                   Expand_961               2 1 1490 1508 1509
+Tile                     Tile_962                 2 1 1509 1506 1510
+Crop                     Slice_967                1 1 1478_splitncnn_1 1515 -23309=1,0 -23310=1,2 -23311=1,2
+Crop                     Slice_972                1 1 1478_splitncnn_0 1520 -23309=1,2 -23310=1,2147483647 -23311=1,2
+Concat                   Concat_973               3 1 1515 1510 1520 1521 0=-2
+Split                    splitncnn_59             1 2 1521 1521_splitncnn_0 1521_splitncnn_1
+Gather                   Gather_975               2 1 1467_splitncnn_1 1522_splitncnn_1 output1
+Gather                   Gather_977               2 1 1521_splitncnn_1 1522_splitncnn_0 output2
+Crop                     Slice_982                1 1 1467_splitncnn_0 1530
+Crop                     Slice_987                1 1 1521_splitncnn_0 1535
+Slice                    Split_988                1 1 1530 1536 -23300=1,-233 1=-1
+Squeeze                  Squeeze_989              1 1 1536 output3 -23300=1,0
+Slice                    Split_990                1 1 1535 1538 -23300=1,-233 1=-1
+Squeeze                  Squeeze_991              1 1 1538 output4 -23300=1,0

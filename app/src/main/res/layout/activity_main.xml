@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary"
+        app:title="@string/app_title"
+        app:titleTextColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/param_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:textColor="@color/white"
+        android:text="参数设置"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+    <LinearLayout
+        android:id="@+id/left_func_area"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/param_btn"
+        >
+    <TextView
+        android:id="@+id/txtRoadType"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="高速"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:textAlignment="center"
+        app:layout_constraintStart_toStartOf="@id/roadType_btn"
+        app:layout_constraintEnd_toEndOf="@id/roadType_btn"
+
+         />
+
+    <Button
+        android:id="@+id/roadType_btn"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="0dp"
+        android:textColor="@color/white"
+        android:text="道路模式"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtRoadType" />
+
+
+    <TextView
+        android:id="@+id/txt_auto_adjust_direction"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="手动"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="@id/roadType_btn"
+        tools:ignore="MissingConstraints"
+        app:layout_constraintTop_toBottomOf="@+id/roadType_btn" />
+
+
+    <Button
+        android:id="@+id/auto_adjust_direction_btn"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="0dp"
+        android:textColor="@color/white"
+        android:text="方向微调"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_auto_adjust_direction" />
+
+    <TextView
+        android:id="@+id/txt_person_focus"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:text="关闭"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="@id/roadType_btn"
+        app:layout_constraintEnd_toEndOf="@id/roadType_btn"
+        app:layout_constraintTop_toBottomOf="@+id/auto_adjust_direction_btn" />
+
+    <Button
+        android:id="@+id/person_focus_btn"
+        android:layout_width="110dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="0dp"
+        android:textColor="@color/white"
+        android:text="增强行人检测"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_person_focus" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:textColor="@color/white"
+        android:text="测试图片"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@id/param_btn"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+
+
+    <!--ViewStub
+        android:id="@+id/view_finder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout="@layout/texture_view"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" /-->
+
+
+
+    <TextureView
+        android:id="@+id/view_finder"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.wzt.yolov5.ResultView
+        android:id="@+id/resultView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:background="@color/Transparent"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/detect_input"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
+        android:background="@color/imageResultbg"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button"
+        />
+
+    <ImageView
+        android:id="@+id/lane_input"
+        android:layout_width="200dp"
+        android:layout_height="72dp"
+        android:background="@color/imageResultbg"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/txtNMS"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginStart="5dp"
+        android:text="目标检测重叠"
+        app:layout_constraintEnd_toEndOf="@+id/txtThresh"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button" />
+
+    <SeekBar
+        android:id="@+id/nms_seek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="0dp"
+        android:max="100"
+        android:progress="70"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toEndOf="@+id/txtNMS"
+        app:layout_constraintTop_toBottomOf="@id/button" />
+
+    <TextView
+        android:id="@+id/txtThresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="5dp"
+        android:text="目标告警阈值"
+        app:layout_constraintTop_toBottomOf="@+id/txtNMS"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <SeekBar
+        android:id="@+id/threshold_seek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="0dp"
+        android:max="100"
+        android:progress="30"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtThresh"
+        app:layout_constraintTop_toBottomOf="@+id/nms_seek" />
+
+    <TextView
+        android:id="@+id/txtAlarm_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="5dp"
+        android:text="报警时间间隔"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/txtThresh"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <SeekBar
+        android:id="@+id/txtAlarm_time_seek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="0dp"
+        android:max="100"
+        android:progress="12"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtFront"
+        app:layout_constraintTop_toBottomOf="@+id/txtThresh" />
+
+
+    <TextView
+        android:id="@+id/txtFront"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="5dp"
+        android:text="前方检测区域"
+        app:layout_constraintTop_toBottomOf="@+id/txtAlarm_time"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <SeekBar
+        android:id="@+id/txtFront_seek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="0dp"
+        android:max="100"
+        android:progress="30"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtDetectWidth"
+        app:layout_constraintTop_toBottomOf="@+id/txtAlarm_time_seek" />
+
+
+
+    <TextView
+        android:id="@+id/txtDetectWidth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="5dp"
+        android:text="检测区域宽度"
+
+        app:layout_constraintTop_toBottomOf="@+id/txtFront"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <SeekBar
+        android:id="@+id/txtDetectWidthSeek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="0dp"
+        android:max="100"
+        android:progress="50"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtDetectWidth"
+        app:layout_constraintTop_toBottomOf="@+id/txtFront_seek" />
+
+    <TextView
+        android:id="@+id/valTxtView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:text="THR:-.--,NMS:-.--"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/nms_seek"
+        app:layout_constraintStart_toEndOf="@+id/txtNMS"
+        app:layout_constraintTop_toBottomOf="@+id/threshold_seek" />
+
+    <Button
+        android:id="@+id/btn_setting"
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="0dp"
+        android:text="@string/setting"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+          />
+
+    <SeekBar
+        android:id="@+id/sb_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:alpha="1.0"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/imageView"
+        app:layout_constraintStart_toStartOf="@id/imageView"
+        app:layout_constraintEnd_toEndOf="@id/imageView" />
+
+    <Button
+        android:id="@+id/about_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="APP更新"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/button"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+    <Button
+        android:id="@+id/zhangying_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="展映APP"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/about_btn"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+    <Button
+        android:id="@+id/input_size_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="分辨率切换"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/zhangying_btn"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+    <Button
+        android:id="@+id/switch_alarm_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="提示音开关"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/input_size_btn"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+
+    <Button
+        android:id="@+id/camera_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="相机权限"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/switch_alarm_btn"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+    <Button
+        android:id="@+id/advanced_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="激活高级功能"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/camera_btn"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+    <Button
+        android:id="@+id/prize_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="打赏"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/button"
+        app:layout_constraintTop_toBottomOf="@+id/txtFront_seek" />
+
+    <TextView
+        android:id="@+id/tv_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please wait..."
+        android:paddingStart="5dp"
+        android:layout_marginTop="60dp"
+        android:width="100dp"
+        android:background="@color/Transparent"
+        android:textColor="#FFFFFF"
+        android:ellipsize="none"
+        android:maxLines="15"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_setting"
+        />
+
+    <SeekBar
+        android:id="@+id/sb_video_speed"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/view_finder" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
