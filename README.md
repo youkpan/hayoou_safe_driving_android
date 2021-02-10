@@ -12,8 +12,8 @@ https://www.bilibili.com/video/BV18K4y1n7Ht/
 Published at :
 http://hayoou.com/adas
 
-APP download ：https://pan.baidu.com/s/1Q-huWTcHGWfyD8AXxVoyow 
-code：adas 
+APP download ：https://pan.baidu.com/s/1i9pD2mRZp50lpq2t9B2P1w 
+code：5566 
 
 If need active advanced function : 5436338430996139943
 
