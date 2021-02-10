@@ -16,6 +16,7 @@ APP download ：https://pan.baidu.com/s/1Q-huWTcHGWfyD8AXxVoyow
 code：adas 
 
 If need active advanced function : 5436338430996139943
+
 Self build no need active key,can fill any integer like 100 etc.
 
 Android YOLOv4 tiny with Tencent ncnn from this project:
