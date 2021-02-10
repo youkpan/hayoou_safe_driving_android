@@ -1,4 +1,4 @@
-# YOLOV4 tiny + lane detection on Android with 8 FPS!
+# YOLOV4 Tiny + ultra fast lane detection on Android with 8 FPS!
 
 Tested with HONOR 20PRO
 Test video :
@@ -15,10 +15,13 @@ http://hayoou.com/adas
 APP download ：https://pan.baidu.com/s/1Q-huWTcHGWfyD8AXxVoyow 
 code：adas 
 
-From this project:
-https://github.com/cmdbug/YOLOv5_NCNN)
+If need active advanced function : 5436338430996139943
+Self build no need active key,can fill any integer like 100 etc.
 
-Lane detect :
+Android YOLOv4 tiny with Tencent ncnn from this project:
+https://github.com/cmdbug/YOLOv5_NCNN
+
+Ultra fast lane detection :
 https://github.com/cfzd/Ultra-Fast-Lane-Detection
 
 We also write some safe drive code,to let this project more useful :)
