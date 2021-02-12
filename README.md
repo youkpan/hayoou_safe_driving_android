@@ -13,8 +13,8 @@ https://www.bilibili.com/video/BV18K4y1n7Ht/
 Published at :
 http://hayoou.com/adas
 
-APP download ：https://pan.baidu.com/s/13zrRCB5Lw0Yj_hpj8SPqzA
-(2021.2.12)
+APP download ：https://pan.baidu.com/s/1gWC9yxZbP3MSOWOrDX6Wig
+(2021.2.12 15:55)
 
 download code：5566 
 
