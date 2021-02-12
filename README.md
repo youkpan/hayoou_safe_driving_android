@@ -45,7 +45,12 @@ wechat: hayoou2
 为方便大家高速路安全驾驶，
 
 我们利用最新机器学习技术，推出了一个新版本的辅助驾驶APP。
+APP 介绍下载：http://hayoou.com/adas
 
+APP 下载 ：https://pan.baidu.com/s/1gWC9yxZbP3MSOWOrDX6Wig
+
+(2021.2.12 15:55)
+提取码：5566 
 
 全球首个安卓手机的AI辅助安全驾驶APP[鼓掌] 
  
