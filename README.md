@@ -13,8 +13,8 @@ https://www.bilibili.com/video/BV18K4y1n7Ht/
 Published at :
 http://hayoou.com/adas
 
-APP download ：https://pan.baidu.com/s/1WVg2T9T0eIDHTRzfxqLXiQ
-(2021.2.13 19:55)
+APP download ：https://pan.baidu.com/s/1qq4yiHNWgKWa29nVNWFAtA
+(2021.2.13 20:10)
 
 download code：5566 
 
@@ -47,9 +47,9 @@ wechat: hayoou2
 我们利用最新机器学习技术，推出了一个新版本的辅助驾驶APP。
 APP 介绍下载：http://hayoou.com/adas
 
-APP 下载 ：https://pan.baidu.com/s/1gWC9yxZbP3MSOWOrDX6Wig
+APP 下载 ：https://pan.baidu.com/s/1qq4yiHNWgKWa29nVNWFAtA
+(2021.2.13 20:10)
 
-(2021.2.12 15:55)
 提取码：5566 
 
 全球首个安卓手机的AI辅助安全驾驶APP[鼓掌] 
@@ -72,11 +72,19 @@ APP 提供车道偏离预警和碰撞预警
 
 哈友安全辅助驾驶，采用2020年底最新的车道检测和目标识别论文和算法，快速识别各种路面复杂状况，帮助你平安开高速，轻松通过人多路口，增强的行人检测机制还能帮你在夜间准确识别行人。
 
+----
+
 安装说明：
 水平固定到前挡风玻璃处，越高越好，不能有晃动
+
 接入电源线缆，保障长时间正常供电（无需接入网络）
+
 安装时 点击设置按钮，确保远处地平线位于绿色水平参考线。
+
+关闭省电模式，开启高性能模式有助于提高处理速度
  
+----
+
  反馈与激活码联系 ：
  
  微信 hayoou2
