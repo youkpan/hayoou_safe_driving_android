@@ -13,8 +13,8 @@ https://www.bilibili.com/video/BV18K4y1n7Ht/
 Published at :
 http://hayoou.com/adas
 
-APP download ：https://pan.baidu.com/s/1qq4yiHNWgKWa29nVNWFAtA
-(2021.2.13 20:10)
+APP download ：https://pan.baidu.com/s/1oYF3JQQL-9PntJPFH-sIhw
+(2021.2.14 20:10)
 
 download code：5566 
 
@@ -47,8 +47,8 @@ wechat: hayoou2
 我们利用最新机器学习技术，推出了一个新版本的辅助驾驶APP。
 APP 介绍下载：http://hayoou.com/adas
 
-APP 下载 ：https://pan.baidu.com/s/1qq4yiHNWgKWa29nVNWFAtA
-(2021.2.13 20:10)
+APP 下载 ：https://pan.baidu.com/s/1oYF3JQQL-9PntJPFH-sIhw
+(2021.2.14 20:10)
 
 提取码：5566 
 
