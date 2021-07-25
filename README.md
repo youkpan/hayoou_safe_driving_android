@@ -58,7 +58,7 @@ APP 下载 ：https://pan.baidu.com/s/1WThc2vVgK-FgQ40_vCc22Q
  
 YoloX 目标检测算法 + ultra fast lane detection 车道识别 在安卓端达到 8FPS [嘿哈]
 
-用安卓手机安装APP，通过底座固定到前方即可（吸盘支架：[淘宝](https://m.tb.cn/h.49i6HzR?sm=bdd5cd)）。
+用安卓手机安装APP，通过底座固定到前方即可（吸盘支架：[淘宝](https://detail.tmall.com/item.htm?id=551934069136)）。
 
 APP 提供车道偏离预警和碰撞预警
 
