@@ -39,6 +39,16 @@
         android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+    <Button
+        android:id="@+id/switch_alarm_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="提示音开关"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/param_btn"
+        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
 
     <LinearLayout
         android:id="@+id/left_func_area"
@@ -49,59 +59,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/param_btn"
         >
-    <TextView
-        android:id="@+id/txtRoadType"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="高速"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
-        android:textAlignment="center"
-        app:layout_constraintStart_toStartOf="@id/roadType_btn"
-        app:layout_constraintEnd_toEndOf="@id/roadType_btn"
-
-         />
-
-    <Button
-        android:id="@+id/roadType_btn"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="0dp"
-        android:textColor="@color/white"
-        android:text="道路模式"
-        android:textAllCaps="false"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtRoadType" />
 
 
-    <TextView
-        android:id="@+id/txt_auto_adjust_direction"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="手动"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="@id/roadType_btn"
-        tools:ignore="MissingConstraints"
-        app:layout_constraintTop_toBottomOf="@+id/roadType_btn" />
+        <TextView
+            android:id="@+id/txt_auto_adjust_direction"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="手动"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
 
 
     <Button
         android:id="@+id/auto_adjust_direction_btn"
-        android:layout_width="80dp"
+        android:layout_width="110dp"
         android:layout_height="40dp"
         android:layout_marginTop="0dp"
         android:textColor="@color/white"
-        android:text="方向微调"
+        android:text="自动方向微调"
         android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_auto_adjust_direction" />
 
     <TextView
         android:id="@+id/txt_person_focus"
-        android:layout_width="80dp"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:textAlignment="center"
@@ -123,6 +109,68 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_person_focus" />
 
+        <TextView
+            android:id="@+id/txt_mute"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            android:text="正常"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            app:layout_constraintStart_toStartOf="@id/roadType_btn"
+            app:layout_constraintEnd_toEndOf="@id/roadType_btn"
+            app:layout_constraintTop_toBottomOf="@+id/person_focus_btn" />
+
+        <Button
+            android:id="@+id/mute_btn"
+            android:layout_width="110dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="0dp"
+            android:textColor="@color/white"
+            android:text="静音设置"
+            android:textAllCaps="false"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txt_mute" />
+
+        <TextView
+            android:id="@+id/txtRoadType"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="高速"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:textAlignment="center"
+            app:layout_constraintStart_toStartOf="@id/roadType_btn"
+            app:layout_constraintEnd_toEndOf="@id/roadType_btn"
+
+            />
+
+        <Button
+            android:id="@+id/roadType_btn"
+            android:layout_width="110dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="0dp"
+            android:textColor="@color/white"
+            android:text="道路模式"
+            android:textAllCaps="false"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtRoadType" />
+
+
+        <Button
+            android:id="@+id/voice_btn"
+            android:layout_width="110dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="0dp"
+            android:textColor="@color/white"
+            android:text="小哈助手"
+            android:visibility="gone"
+            android:textAllCaps="false"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mute_btn" />
+
     </LinearLayout>
 
     <Button
@@ -133,7 +181,7 @@
         android:textColor="@color/white"
         android:text="测试图片"
         android:textAllCaps="false"
-        app:layout_constraintStart_toEndOf="@id/param_btn"
+        app:layout_constraintStart_toEndOf="@id/switch_alarm_btn"
         app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
 
 
@@ -151,8 +199,8 @@
 
     <TextureView
         android:id="@+id/view_finder"
-        android:layout_width="300dp"
-        android:layout_height="150dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="0dp"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
@@ -174,12 +222,12 @@
 
     <ImageView
         android:id="@+id/detect_input"
-        android:layout_width="200dp"
-        android:layout_height="150dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:background="@color/imageResultbg"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button"
+        app:layout_constraintStart_toEndOf="@id/left_func_area"
+        app:layout_constraintTop_toTopOf="parent"
         />
 
     <ImageView
@@ -209,7 +257,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="3dp"
-        android:layout_marginEnd="0dp"
+        android:layout_marginEnd="100dp"
         android:max="100"
         android:progress="70"
         app:layout_constraintEnd_toEndOf="parent"
@@ -223,7 +271,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginStart="5dp"
-        android:text="目标告警阈值"
+        android:text="目标检测阈值"
         app:layout_constraintTop_toBottomOf="@+id/txtNMS"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints" />
@@ -234,7 +282,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="6dp"
-        android:layout_marginEnd="0dp"
+        android:layout_marginEnd="100dp"
         android:max="100"
         android:progress="30"
         app:layout_constraintEnd_toEndOf="parent"
@@ -249,6 +297,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginStart="5dp"
         android:text="报警时间间隔"
+        android:textColor="@color/white"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/txtThresh"
         app:layout_constraintStart_toStartOf="parent"
@@ -260,7 +309,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="6dp"
-        android:layout_marginEnd="0dp"
+        android:layout_marginEnd="100dp"
         android:max="100"
         android:progress="12"
         android:visibility="gone"
@@ -277,6 +326,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginStart="5dp"
         android:text="前方检测区域"
+        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/txtAlarm_time"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints" />
@@ -287,7 +337,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="6dp"
-        android:layout_marginEnd="0dp"
+        android:layout_marginEnd="100dp"
         android:max="100"
         android:progress="30"
         app:layout_constraintEnd_toEndOf="parent"
@@ -304,7 +354,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginStart="5dp"
         android:text="检测区域宽度"
-
+        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/txtFront"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints" />
@@ -315,13 +365,66 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="6dp"
-        android:layout_marginEnd="0dp"
+        android:layout_marginEnd="100dp"
         android:max="100"
         android:progress="50"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/txtDetectWidth"
         app:layout_constraintTop_toBottomOf="@+id/txtFront_seek" />
+
+    <TextView
+        android:id="@+id/txtCityDetectHeight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="5dp"
+        android:textColor="@color/white"
+        android:text="城市检测高度"
+        app:layout_constraintTop_toBottomOf="@+id/txtDetectWidth"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <SeekBar
+        android:id="@+id/txtCityDetectHeightSeek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="100dp"
+        android:max="100"
+        android:progress="50"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtCityDetectHeight"
+        app:layout_constraintTop_toBottomOf="@+id/txtDetectWidthSeek" />
+
+
+    <TextView
+        android:id="@+id/txtLaneDetectHeight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="5dp"
+        android:textColor="@color/white"
+        android:text="道路检测距离"
+        app:layout_constraintTop_toBottomOf="@+id/txtCityDetectHeight"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <SeekBar
+        android:id="@+id/LaneDetectHeightSeek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="100dp"
+        android:max="100"
+        android:progress="50"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/txtLaneDetectHeight"
+        app:layout_constraintTop_toBottomOf="@+id/txtCityDetectHeightSeek" />
 
     <TextView
         android:id="@+id/valTxtView"
@@ -334,6 +437,53 @@
         app:layout_constraintStart_toEndOf="@+id/txtNMS"
         app:layout_constraintTop_toBottomOf="@+id/threshold_seek" />
 
+    <Button
+        android:id="@+id/distance_setting_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="测距参数"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/txtLaneDetectHeight"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <Button
+        android:id="@+id/hit_predict_setting_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="碰撞预测"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/txtLaneDetectHeight"
+        app:layout_constraintStart_toEndOf="@+id/distance_setting_btn"
+        />
+
+
+
+    <Button
+        android:id="@+id/ultra_fast_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="极速识别"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/distance_setting_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <Button
+        android:id="@+id/screen_off_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="熄屏设置"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/hit_predict_setting_btn"
+        app:layout_constraintStart_toEndOf="@+id/ultra_fast_btn"
+        />
     <Button
         android:id="@+id/btn_setting"
         android:layout_width="70dp"
@@ -390,16 +540,6 @@
         app:layout_constraintStart_toEndOf="@+id/zhangying_btn"
         app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
 
-    <Button
-        android:id="@+id/switch_alarm_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:text="提示音开关"
-        android:visibility="gone"
-        android:textAllCaps="false"
-        app:layout_constraintStart_toEndOf="@+id/input_size_btn"
-        app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
 
 
     <Button
@@ -410,7 +550,7 @@
         android:text="相机权限"
         android:visibility="gone"
         android:textAllCaps="false"
-        app:layout_constraintStart_toEndOf="@+id/switch_alarm_btn"
+        app:layout_constraintStart_toEndOf="@+id/input_size_btn"
         app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
 
     <Button
@@ -441,8 +581,8 @@
         android:layout_height="wrap_content"
         android:text="Please wait..."
         android:paddingStart="5dp"
-        android:layout_marginTop="60dp"
-        android:width="100dp"
+        android:layout_marginTop="10dp"
+        android:width="110dp"
         android:background="@color/Transparent"
         android:textColor="#FFFFFF"
         android:ellipsize="none"

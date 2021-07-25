@@ -16,6 +16,29 @@
 #include "YoloV5CustomLayer.h"
 #include "NanoDet.h"
 #include "LSTR.h"
+#include "yolox.h"
+
+
+
+static int draw_unsupported(cv::Mat& rgb)
+{
+    const char text[] = "unsupported";
+
+    int baseLine = 0;
+    cv::Size label_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 1.0, 1, &baseLine);
+
+    int y = (rgb.rows - label_size.height) / 2;
+    int x = (rgb.cols - label_size.width) / 2;
+
+    cv::rectangle(rgb, cv::Rect(cv::Point(x, y), cv::Size(label_size.width, label_size.height + baseLine)),
+                  cv::Scalar(255, 255, 255), -1);
+
+    cv::putText(rgb, text, cv::Point(x, y + label_size.height),
+                cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0, 0, 0));
+
+    return 0;
+}
+
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     ncnn::create_gpu_instance();
@@ -52,7 +75,90 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
 //    LOGD("jni onunload");
 }
 
+static Yolox* g_yolox = 0;
+static ncnn::Mutex lock1;
+// public native boolean loadModel(AssetManager mgr, int modelid, int cpugpu);
+extern "C" {
+JNIEXPORT jboolean JNICALL Java_com_wzt_yolov5_NcnnYolox_loadModel(JNIEnv* env, jobject thiz, jobject assetManager, jint modelid, jint cpugpu)
+{
+    if (modelid < 0 || modelid > 6 || cpugpu < 0 || cpugpu > 1)
+    {
+        return JNI_FALSE;
+    }
 
+    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
+
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "loadModel %p", mgr);
+
+    const char* modeltypes[] =
+            {
+                    "yolox-nano",
+                    "yolox-tiny",
+            };
+
+    const int target_sizes[] =
+            {
+                    416,
+                    416,
+            };
+
+    const float mean_vals[][3] =
+            {
+                    {255.f * 0.485f, 255.f * 0.456, 255.f * 0.406f},
+                    {255.f * 0.485f, 255.f * 0.456, 255.f * 0.406f},
+            };
+
+    const float norm_vals[][3] =
+            {
+                    {1 / (255.f * 0.229f), 1 / (255.f * 0.224f), 1 / (255.f * 0.225f)},
+                    {1 / (255.f * 0.229f), 1 / (255.f * 0.224f), 1 / (255.f * 0.225f)},
+            };
+
+    const char* modeltype = modeltypes[(int)modelid];
+    int target_size = target_sizes[(int)modelid];
+    bool use_gpu = (int)cpugpu == 1;
+
+    // reload
+    {
+        ncnn::MutexLockGuard g(lock1);
+
+        if (use_gpu && ncnn::get_gpu_count() == 0)
+        {
+            // no gpu
+            //delete g_yolox;
+            //g_yolox = 0;
+        }
+        else
+        {
+            if (!g_yolox)
+                g_yolox = new Yolox;
+            g_yolox->load(mgr, modeltype, target_size, mean_vals[(int)modelid], norm_vals[(int)modelid], use_gpu);
+        }
+    }
+
+    return JNI_TRUE;
+}
+}
+
+extern "C" JNIEXPORT jobjectArray JNICALL
+Java_com_wzt_yolov5_NcnnYolox_detect(JNIEnv *env, jclass, jobject image, jdouble threshold, jdouble nms_threshold) {
+    std::vector<Object1> objects;
+    //cv::Mat rgb(0, 0, CV_8UC3);
+
+    auto result = g_yolox->detect(env,image,objects,threshold,nms_threshold);
+
+    auto box_cls = env->FindClass("com/wzt/yolov5/Box");
+    auto cid = env->GetMethodID(box_cls, "<init>", "(FFFFIF)V");
+    jobjectArray ret = env->NewObjectArray(result.size(), box_cls, nullptr);
+    int i = 0;
+    for (auto &box:result) {
+        env->PushLocalFrame(1);
+        jobject obj = env->NewObject(box_cls, cid, box.x1, box.y1, box.x2, box.y2, box.label, box.score);
+        obj = env->PopLocalFrame(obj);
+        env->SetObjectArrayElement(ret, i++, obj);
+    }
+    return ret;
+}
 /*********************************************************************************************
                                          Yolov5
  ********************************************************************************************/
@@ -134,10 +240,10 @@ Java_com_wzt_yolov5_YOLOv4_init(JNIEnv *env, jclass, jobject assetManager, jint 
         AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
         if (yoloType == 0) {
             YoloV4::detector = new YoloV4(mgr, "yolov4-tiny-opt.param", "yolov4-tiny-opt.bin", useGPU);
-        } else if (yoloType == 1) {
+        } else if (yoloType == 2) {
             YoloV4::detector = new YoloV4(mgr, "MobileNetV2-YOLOv3-Nano-coco.param",
                                           "MobileNetV2-YOLOv3-Nano-coco.bin", useGPU);
-        } else if (yoloType == 2) {
+        } else if (yoloType == 1) {
             YoloV4::detector = new YoloV4(mgr, "yolo-fastest-opt.param", "yolo-fastest-opt.bin", useGPU);
         }
     }
@@ -169,7 +275,7 @@ Java_com_wzt_yolov5_LSTR_init(JNIEnv *env, jclass, jobject assetManager, jint yo
     }
     if (LSTR::detector == nullptr) {
         AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
-        LSTR::detector = new LSTR(mgr, "ufast_lane_det-sim-opt.param", "ufast_lane_det-sim-opt.bin", false);
+        LSTR::detector = new LSTR(mgr, "ufast_lane_det-sim-opt.param", "ufast_lane_det-sim-opt.bin", useGPU);
         //LSTR::detector = new LSTR(mgr, "LSTR-sim-opt.param", "LSTR-sim-opt.bin", false);
     }
 }
@@ -200,6 +306,13 @@ extern "C" JNIEXPORT jlong JNICALL
 Java_com_wzt_yolov5_LSTR_getAdvancedKey(JNIEnv *env, jclass, jlong idx ) {
 
     return 0;
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_wzt_yolov5_LSTR_setFastExp(JNIEnv *env, jclass, jboolean is_use_fast_exp ) {
+    if(LSTR::detector!=0){
+        //LSTR::detector->set_fast_exp(is_use_fast_exp);
+    }
 }
 
 /*********************************************************************************************

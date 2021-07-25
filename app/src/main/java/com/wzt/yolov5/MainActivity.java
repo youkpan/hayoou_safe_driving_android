@@ -37,11 +37,17 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.graphics.drawable.GradientDrawable;
+import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.SoundPool;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -75,6 +81,7 @@ import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -90,6 +97,12 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.graphics.Bitmap.Config.ARGB_8888;
 import static com.umeng.commonsdk.UMConfigure.DEVICE_TYPE_PHONE;
 import static com.wzt.yolov5.SafeDetect.direction_center_x_offset;
+import static com.wzt.yolov5.SafeDetect.get_safe_zone_detect;
+import static com.wzt.yolov5.SafeDetect.hit_predict;
+import static com.wzt.yolov5.SafeDetect.hit_predict_time;
+import static com.wzt.yolov5.SafeDetect.near_object_distance;
+import static com.wzt.yolov5.SafeDetect.near_object_speed;
+import static com.wzt.yolov5.SafeDetect.screen_auto_off;
 
 public class MainActivity extends AppCompatActivity {
     public static int YOLOV5S = 1;
@@ -106,7 +119,11 @@ public class MainActivity extends AppCompatActivity {
     public static int NANODET = 12;
     public static int YOLO_FASTEST_XL = 13;
     public static int LANE_LSTR = 14;
+    public static int YOLOX = 14;
+
     public static boolean CONFIG_MULTI_DETECT = true;
+    public static String app_version="2.7";
+    public static boolean ultra_fast_mode = false;
 
     public static int USE_MODEL = LANE_LSTR;
 
@@ -114,12 +131,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static CameraX.LensFacing CAMERA_ID = CameraX.LensFacing.BACK;
 
+    public static Sensor mTempSensor =null;
+    public static float device_temperature = 25;
+
     private static final int REQUEST_CAMERA = 1;
     private static final int REQUEST_PICK_IMAGE = 2;
     private static final int REQUEST_PICK_VIDEO = 3;
     private static String[] PERMISSIONS_CAMERA = {
             Manifest.permission.CAMERA
     };
+
     private Toolbar toolbar;
     private ImageView resultImageView;
     private ResultView mResultView;
@@ -129,13 +150,17 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvThreshold;
     private TextView tvFront;
     private TextView tvAlarmWait;
+    private TextView tvLaneDetectHeight;
     private SeekBar nmsSeekBar;
     private SeekBar thresholdSeekBar;
     private SeekBar frontSeekBar;
     private SeekBar alarmWaitSeekBar;
+    private SeekBar laneDetectHeightSeekBar;
+
     private TextView tvNMNThreshold;
     private TextView tvInfo;
     private TextView tvDetectWidth;
+    private TextView tvCityDetectHeight;
 
     private Button btnPhoto;
     private Button btnInputSize;
@@ -150,27 +175,37 @@ public class MainActivity extends AppCompatActivity {
     private Button btnRoadType ;
     private Button btnDirectionAutoAdjust ;
     private Button btnPersonDetectFocus ;
+    private Button btnMute ;
+    private Button btnDistance_setting;
+    private Button btnHitPredict;
+    private Button btnScreenAutoOff;
+    private Button btnUltra_fast;
 
     private  boolean param_toggle = false;
     public static double threshold = 0.3, nms_threshold = 0.7;
     public static double front_detect=0.5;
-    public static float DetectWidth = 1.1f;
+    public static float DetectWidth = 1.05f;
+    public static float CityDetectHeight = 0.5f;
+    public static float LaneDetectHeight = 0.5f;
 
     private TextureView viewFinder;
     private SeekBar sbVideo;
     private SeekBar sbVideoSpeed;
     private SeekBar DetectWidthSeekBar;
+    private SeekBar CityDetectHeightSeekBar;
 
     protected float videoSpeed = 1.0f;
     protected long videoCurFrameLoc = 0;
     public static int VIDEO_SPEED_MAX = 20 + 1;
     public static int VIDEO_SPEED_MIN = 1;
+    public static int frame_count = 0;
 
     private int current_rotation_degree = 0;
 
     private AtomicBoolean detectCamera = new AtomicBoolean(false);
     private AtomicBoolean detectPhoto = new AtomicBoolean(false);
     private AtomicBoolean detectVideo = new AtomicBoolean(false);
+    private AtomicBoolean detectYolov4 = new AtomicBoolean(false);
 
     private long startTime = 0;
     private long endTime = 0;
@@ -179,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
     public double total_fps = 0;
     public int fps_count = 0;
+    public double avg_fps = 0;
 
     public static float recent_fps =0 ;
 
@@ -194,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static boolean view_setting_lines = false;
     public static int USE_DEBUG_PHOTO_ID = 0;
+    public static boolean USE_FAST_EXP = false;
 
     public int screen_width =1920;
     public int screen_height = 1080;
@@ -209,8 +246,17 @@ public class MainActivity extends AppCompatActivity {
     public int direction_on_voiceId;
     public int person_focus_off_voiceId;
     public int person_focus_on_voiceId;
-
+    public static int front_car_start_voiceId;
+    public static int mute_2min_voiceId;
+    public static int mute_voiceId;
+    public static int sound_on_voiceId;
+    public static int welcome_voiceId;
+    public static int rest_2hour_voiceId;
+    public static int toohot_voiceId;
     public static int alarm_wait_time = 20;
+
+    public static long mute_end=0;
+    public static int mute_func_idx=0;
 
     public SafeDetect msafeDetect = new SafeDetect();
 
@@ -218,16 +264,29 @@ public class MainActivity extends AppCompatActivity {
     public static Context mcontext;
     public static Activity mactivity;
     public static long advanced_func_key = 0;
-    public static int input_size_idx = 1 ;
-    //0 静音 ，1 开启，2，关闭车道提示 3，关闭物体提示
+    public static long key_create_time = 0;
+    public static int input_size_idx = 2 ;
+    //0 静音 ，1 开启，2，关闭车道提示 3，关闭物体提示 4,关闭前车起步提示
     public static int alarm_mode = 1;
-    public String openid = "";
-    public String deviceid = "";
+    public static int last_alarm_mode = alarm_mode;
+    public static String openid = "";
+    public static String deviceid = "";
     //0 不确定 ，1 高速，2，城市 3，郊外
     public static int road_type = 1;
     //0 关闭 ，1 自动，2，自动水平 3，自动前后
     public static int auto_adjust_detect_area = 0;
     public static int person_detect_focus = 0;
+    public static boolean far_enhanced_detect = true;
+    public static  int USE_YOLOV4_DETECT = 0;
+    public static  float carmera_height = 1.2f;
+    public static  float distance_fix = 1.f;
+    public static  float vertical_distance_rate = 1.f;
+    public static long sys_start_time = 0;
+    public static long reset_notice_start_time = 0;
+    public static long toohot_alarm_time =0;
+    public static Box[] detect_full_result = null;
+    public static Box[] detect_far_result = null;
+    public static Box[] lane_result = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -235,31 +294,10 @@ public class MainActivity extends AppCompatActivity {
         mcontext = this;
         mactivity = this;
         setContentView(R.layout.activity_main);
+        sys_start_time = SystemClock.elapsedRealtime();
+        reset_notice_start_time = sys_start_time;
+        init_param();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("adas", MODE_PRIVATE);
-        //SharedPreferences sharedPreferences = PreferenceManager.getSharedPreferences("adas",mcontext /* Activity context */);
-        threshold = sharedPreferences.getFloat("threshold", (float)threshold);
-        nms_threshold = sharedPreferences.getFloat("nms_threshold", (float)nms_threshold);
-        front_detect = sharedPreferences.getFloat("front_detect", (float)front_detect);
-        direction_center_x_offset = sharedPreferences.getFloat("direction_center_x_offset", (float)direction_center_x_offset);
-        alarm_wait_time = (int)sharedPreferences.getFloat("alarm_wait_time", (float)alarm_wait_time);
-        advanced_func_key = sharedPreferences.getLong("advanced_func_key", advanced_func_key);
-        input_size_idx = sharedPreferences.getInt("input_size_idx", input_size_idx);
-        DetectWidth = sharedPreferences.getFloat("DetectWidth", DetectWidth);
-        alarm_mode = sharedPreferences.getInt("alarm_mode", alarm_mode);
-        road_type = sharedPreferences.getInt("alarm_mode", road_type);
-        auto_adjust_detect_area = sharedPreferences.getInt("auto_adjust_detect_area", auto_adjust_detect_area);
-        person_detect_focus = sharedPreferences.getInt("person_detect_focus", person_detect_focus);
-        openid = sharedPreferences.getString("openid", openid);
-        deviceid = sharedPreferences.getString("deviceid", deviceid);
-        if(deviceid.equals("")){
-            long deviceid_gen = ((new Date().getTime())) << 16 |  (SystemClock.elapsedRealtime()&0xFFFF);
-            deviceid = String.valueOf(deviceid_gen);
-            SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
-            SharedPreferences.Editor editor = userInfo.edit();
-            editor.putString("deviceid", deviceid);
-            editor.apply();
-        }
         initModel();
         initViewID();
         initViewListener();
@@ -286,9 +324,54 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             init_youmeng_SDK();
+            Utils.check_app_update();
         }catch (Exception e) {
 
         }
+        try {
+            Utils.check_app_news();
+        }catch (Exception e) {
+
+        }
+
+        try{
+            SensorManager mSmanager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            //List<Sensor> allSensors = mSmanager.getSensorList(Sensor.TYPE_ALL);
+            mTempSensor =   mSmanager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+            // 温度传感器的监听器
+            SensorEventListener mSensorEventListener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    if (event.sensor.getStringType().toUpperCase().indexOf("TEMP") > 0) {
+                        /*温度传感器返回当前的温度，单位是摄氏度（°C）。*/
+                        device_temperature = event.values[0];
+                        //Log.e("temperature: ", String.valueOf(device_temperature));
+                        //mSmanager.unregisterListener(mSensorEventListener, mTempSensor);
+                    }
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                }
+            };
+
+            if (mTempSensor != null) {
+                mSmanager.registerListener(mSensorEventListener, mTempSensor
+                        , SensorManager.SENSOR_DELAY_GAME);
+            }
+        }catch (Exception e) {
+
+        }
+        toast_msg("安全辅助驾驶启动中，请将音量调到最大，点击设置按钮 对齐摄像头地平线到水平参考线，垂直线对准道路中心");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(4000);
+                    play_sound(welcome_voiceId);
+                } catch (Exception e) {
+                }
+            }}).start();
 }
 
     protected void init_youmeng_SDK(){
@@ -346,8 +429,13 @@ public class MainActivity extends AppCompatActivity {
         direction_on_voiceId = mSoundPool.load(this, R.raw.direction_adjust_on, 1);
         person_focus_off_voiceId = mSoundPool.load(this, R.raw.person_focus_off, 1);
         person_focus_on_voiceId = mSoundPool.load(this, R.raw.person_focus_on, 1);
-
-
+        front_car_start_voiceId = mSoundPool.load(this, R.raw.front_car_start, 1);
+        mute_2min_voiceId = mSoundPool.load(this, R.raw.mute2min, 1);
+        mute_voiceId = mSoundPool.load(this, R.raw.mute, 1);
+        sound_on_voiceId = mSoundPool.load(this, R.raw.sound_on, 1);
+        welcome_voiceId = mSoundPool.load(this, R.raw.welcome, 1);
+        rest_2hour_voiceId = mSoundPool.load(this, R.raw.rest_at_2hour, 1);
+        toohot_voiceId = mSoundPool.load(this, R.raw.rest_at_2hour, 1);
     }
 
     public void play_alarm(float rate){
@@ -386,18 +474,24 @@ public class MainActivity extends AppCompatActivity {
     public void play_sound(int resid){
         mSoundPool.play(resid, 1, 1, 1, 0, 1f);
     }
+
     protected void initViewListener() {
         toolbar.setNavigationIcon(R.drawable.actionbar_dark_back_icon);
         toolbar.setNavigationOnClickListener(v -> finish());
 
         if (USE_MODEL != YOLOV5S  && USE_MODEL != DBFACE && USE_MODEL != NANODET && USE_MODEL != YOLOV5_CUSTOM_LAYER) {
             nmsSeekBar.setEnabled(false);
+            laneDetectHeightSeekBar.setEnabled(false);
             thresholdSeekBar.setEnabled(false);
             frontSeekBar.setEnabled(false);
             DetectWidthSeekBar.setEnabled(false);
             tvDetectWidth.setVisibility(View.GONE);
             DetectWidthSeekBar.setVisibility(View.GONE);
+            tvCityDetectHeight.setVisibility(View.GONE);
+            CityDetectHeightSeekBar.setVisibility(View.GONE);
+            laneDetectHeightSeekBar.setVisibility(View.GONE);
             tvFront.setVisibility(View.GONE);
+            tvLaneDetectHeight.setVisibility(View.GONE);
             frontSeekBar.setVisibility(View.GONE);
             tvNMS.setVisibility(View.GONE);
             tvThreshold.setVisibility(View.GONE);
@@ -407,6 +501,10 @@ public class MainActivity extends AppCompatActivity {
             tvAlarmWait.setVisibility(View.GONE);
             alarmWaitSeekBar.setVisibility(View.GONE);
             btnParam_setting.setVisibility(View.GONE);
+            btnDistance_setting.setVisibility(View.GONE);
+            btnHitPredict.setVisibility(View.GONE);
+            btnScreenAutoOff.setVisibility(View.GONE);
+            btnUltra_fast.setVisibility(View.GONE);
         } else if (USE_MODEL == YOLOV5S) {
             threshold = 0.3f;
             nms_threshold = 0.7f;
@@ -423,8 +521,10 @@ public class MainActivity extends AppCompatActivity {
         frontSeekBar.setProgress((int) (front_detect * 100));
         alarmWaitSeekBar.setProgress((int) (alarm_wait_time ));
         DetectWidthSeekBar.setProgress((int) ( (DetectWidth-0.2f)/1.8f *100));
+        CityDetectHeightSeekBar.setProgress((int) ( CityDetectHeight *100));
+        laneDetectHeightSeekBar.setProgress((int) ( LaneDetectHeight *100));
         final String format = "重叠: %.2f，阈值：%.2f";
-        final String format2 = "前方检测区域: %.2f";
+        final String format2 = "高速检测距离: %.2f";
         tvFront.setText(String.format(Locale.ENGLISH, format2, front_detect));
         frontSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -435,6 +535,29 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
                 SharedPreferences.Editor editor = userInfo.edit();
                 editor.putFloat("front_detect", (float)front_detect);
+                editor.commit();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        final String format6 = "道路检测距离: %.2f";
+        tvLaneDetectHeight.setText(String.format(Locale.ENGLISH, format6, LaneDetectHeight));
+        laneDetectHeightSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                LaneDetectHeight = i / 100.f;
+                tvLaneDetectHeight.setText(String.format(Locale.ENGLISH, format6, LaneDetectHeight));
+
+                SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
+                SharedPreferences.Editor editor = userInfo.edit();
+                editor.putFloat("LaneDetectHeight", (float)LaneDetectHeight);
                 editor.commit();
             }
 
@@ -463,6 +586,38 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
                 SharedPreferences.Editor editor = userInfo.edit();
                 editor.putFloat("DetectWidth", (float)DetectWidth);
+                editor.commit();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+        final String format5 = "城市检测距离: %.2f";
+        tvCityDetectHeight.setText(String.format(Locale.ENGLISH, format5, CityDetectHeight));
+        CityDetectHeightSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+                if(advanced_func_key==0 || ! LSTR.advancedKeyCheck(advanced_func_key)){
+                    toast_msg("请获取高级权限");
+                    set_advanced_key();
+                    return;
+                }
+                CityDetectHeight =   i / 100.f   ;
+                tvCityDetectHeight.setText(String.format(Locale.ENGLISH, format5, CityDetectHeight));
+                if(road_type!=2){
+                    road_type = 2;
+                    show_road_type();
+                }
+
+                SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
+                SharedPreferences.Editor editor = userInfo.edit();
+                editor.putFloat("CityDetectHeight", (float)CityDetectHeight);
                 editor.commit();
             }
 
@@ -558,6 +713,255 @@ public class MainActivity extends AppCompatActivity {
                 road_text.setText("郊外");
                 break;
         }
+        tvInfo.setLongClickable(true);
+        tvInfo.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(tvInfo.getTextSize() <=16){
+                    tvInfo.setTextSize(20);
+                }else{
+                    tvInfo.setTextSize(14);
+                }
+
+                return true;
+            }
+        });
+        btnUltra_fast.setLongClickable(true);
+        btnUltra_fast.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                long time_now = SystemClock.elapsedRealtime();
+                while(detectCamera.get()){
+                    if(SystemClock.elapsedRealtime() - time_now >3000){
+                        toast_msg("设置失败，等待图像处理完毕过长" );
+                        return true;
+                    }
+                }
+                detectCamera.set(true);
+                USE_YOLOV4_DETECT ++;
+                if(USE_YOLOV4_DETECT >4){
+                    USE_YOLOV4_DETECT = 0;
+                }
+                if(USE_YOLOV4_DETECT == 0){
+                    NcnnYolox.loadModel(getAssets(),1, USE_GPU?1:0);
+                    toast_msg("使用 NcnnYolox 检测，准确度最高，速度较快 " );
+                }else if(USE_YOLOV4_DETECT <=3) {
+
+                    switch (USE_YOLOV4_DETECT){
+                        case 1:
+                            YOLOv4.init(getAssets(), 0, USE_GPU);
+                            toast_msg("使用 yoloV4 Tiny 检测 ，较快 约 12FPS" );
+                            break;
+                        case 2:
+                            YOLOv4.init(getAssets(), 1, USE_GPU);
+                            toast_msg("使用 yolo-fastest 检测 ，很快 约 27FPS  " );
+                            break;
+                        case 3:
+                            YOLOv4.init(getAssets(), 2, USE_GPU);
+                            toast_msg("使用 mobilnetV2 + yolov3 检测，较快 约 25FPS " );
+                            break;
+                    }
+
+                }else if(USE_YOLOV4_DETECT == 4){
+                    YOLOv5.init(getAssets(), USE_GPU);
+                    toast_msg("使用 yolov5 检测，准确度最高，但速度较慢 约 3FPS" );
+                }
+                detectCamera.set(false);
+                return  true;
+            }
+        });
+        btnUltra_fast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                long time_now = SystemClock.elapsedRealtime();
+                while(detectCamera.get()){
+                    if(SystemClock.elapsedRealtime() - time_now >3000){
+                        toast_msg("设置失败，等待图像处理完毕过长" );
+                        return ;
+                    }
+                }
+
+                ultra_fast_mode = !ultra_fast_mode;
+                detectCamera.set(false);
+
+                SharedPreferences userInfo = mcontext.getSharedPreferences("adas", MODE_PRIVATE);
+                SharedPreferences.Editor editor = userInfo.edit();
+                editor.putBoolean("ultra_fast_mode", ultra_fast_mode);
+                editor.commit();
+
+                if(ultra_fast_mode){
+                    toast_msg("开启极速识别模式，会周期进行图像识别，使得流畅度变高，不是每个图像都检测车道，会降低一点识别正确率");
+
+                    btnUltra_fast.setText("极速识别：开启");
+                    if(advanced_func_key != 0){
+                        toast_msg("长按极速识别按钮可切换其它识别模型，识别速度会不同，但识别精度会变化");
+                    }
+                    //USE_YOLOV4_DETECT = 1;
+                }else {
+                    toast_msg("关闭极速识别");
+                    btnUltra_fast.setText("极速识别");
+                    //USE_YOLOV4_DETECT = 0;
+                }
+                //YOLOv4.init(getAssets(), USE_YOLOV4_DETECT, USE_GPU);
+                //toast_msg("使用 yolo 检测 v"+ USE_YOLOV4_DETECT);
+            }
+            });
+
+        btnScreenAutoOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                screen_auto_off = !screen_auto_off ;
+                SharedPreferences userInfo = mcontext.getSharedPreferences("adas", MODE_PRIVATE);
+                SharedPreferences.Editor editor = userInfo.edit();
+                editor.putBoolean("screen_auto_off", screen_auto_off);
+                editor.commit();
+                if(screen_auto_off){
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    toast_msg("自动息屏 ：开, APP 可能会退出 ");
+                    btnScreenAutoOff.setText("自动息屏 ：开");
+                }else {
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    toast_msg("自动息屏 ：关，屏幕一直开启，降低亮度可以让机器减少发热和用电量 ");
+                    btnScreenAutoOff.setText("一直显示");
+                }
+
+            }
+        });
+        btnHitPredict.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hit_predict ++;//= !hit_predict;
+                if(hit_predict >4){
+                    hit_predict = 0;
+                }
+                SharedPreferences userInfo = mcontext.getSharedPreferences("adas", MODE_PRIVATE);
+                SharedPreferences.Editor editor = userInfo.edit();
+                editor.putInt("hit_predict_i", hit_predict);
+
+                editor.apply();
+                show_hit_predict(true);
+
+            }
+            });
+        btnDistance_setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LinearLayout edits= new LinearLayout(MainActivity.this);
+                edits.setOrientation(LinearLayout.VERTICAL);
+                final EditText edit = new EditText(MainActivity.this);
+                edit.setText(String.valueOf(carmera_height));
+                final EditText edit2 = new EditText(MainActivity.this);
+                edit2.setText(String.valueOf(distance_fix));
+                final EditText edit3 = new EditText(MainActivity.this);
+                edit3.setText(String.valueOf(vertical_distance_rate));
+
+                edits.addView(edit);
+                edits.addView(edit2);
+                edits.addView(edit3);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setView(edits);
+                builder.setTitle( "车距测量参数，请输入摄像头高度(m)、距离修正系数、垂直测距（更精确）和水平测距占比：" );
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        String carmera_height_s = edit.getText().toString();
+                        String distance_fix_s = edit2.getText().toString();
+                        String vertical_distance_rate_s = edit3.getText().toString();
+                        SharedPreferences userInfo = mcontext.getSharedPreferences("adas", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = userInfo.edit();
+
+                        if(get_float(carmera_height_s)>0){
+                            carmera_height = get_float(carmera_height_s);
+                            editor.putFloat("carmera_height", carmera_height);
+                        }
+                        if(get_float(distance_fix_s)>0){
+                            distance_fix = get_float(distance_fix_s);
+                            editor.putFloat("distance_fix", distance_fix);
+                        }
+                        if(Math.abs(get_float(vertical_distance_rate_s))<=1){
+                            vertical_distance_rate = get_float(vertical_distance_rate_s);
+                            editor.putFloat("vertical_distance_rate_s", vertical_distance_rate);
+                        }
+
+                        editor.apply();
+                    }
+                });
+                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        String openidt = edit.getText().toString();
+                        String active_key = edit2.getText().toString();
+                    }
+                });
+                builder.show();
+
+            }
+        });
+
+        btnMute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                long timenow = SystemClock.elapsedRealtime();
+                TextView txt_mute = findViewById(R.id.txt_mute);
+                mute_func_idx ++;
+                if (mute_func_idx >2){
+                    mute_func_idx = 0;
+                }
+
+                switch (mute_func_idx){
+                    case 0:
+                        mute_end = 0;
+                        alarm_mode = last_alarm_mode;
+                        show_alarm_mode(true);
+                        play_sound(sound_on_voiceId);
+                        break;
+                    case 1:
+                        mute_end = timenow + (long)120 *1000 ;
+
+                        play_sound(mute_2min_voiceId);
+                        txt_mute.setText("静音2分钟");
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (int i=0 ;i<120;i++) {
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (Exception e) {
+
+                                    }
+                                    if(mute_func_idx!=1){
+                                        return;
+                                    }
+                                }
+                                if(mute_func_idx==1) {
+                                    mute_end = 0;
+                                    mute_func_idx = 0;
+                                    alarm_mode = last_alarm_mode;
+                                    show_alarm_mode(true);
+                                    play_sound(sound_on_voiceId);
+                                }
+                            }
+                        }).start();
+                        last_alarm_mode = alarm_mode;
+                        alarm_mode = 0;
+                        break;
+                    case 2:
+                        mute_end = 1 ;
+                        if(alarm_mode != 0){
+                            last_alarm_mode = alarm_mode;
+                        }
+                        alarm_mode = 0;
+                        show_alarm_mode(true);
+                        play_sound(mute_voiceId);
+                        break;
+                }
+            }
+        });
+
+        show_alarm_mode(true);
 
         btnRoadType.setOnClickListener(new View.OnClickListener() {
                @Override
@@ -571,30 +975,7 @@ public class MainActivity extends AppCompatActivity {
                    if (road_type > 3){
                        road_type = 1;
                    }
-                   TextView road_text = findViewById(R.id.txtRoadType);
-                   int soundid;
-                   switch (road_type){
-                       case 1:
-                           road_text.setText("高速");
-                           alarm_mode = 1;
-                           toast_msg( "高速模式，检测更远，车道偏离预警启动");
-                           play_sound(highway_voiceId);
-                           break;
-                       case 2:
-                           road_text.setText("城市");
-                           alarm_mode = 1;
-                           toast_msg( "城市模式，其他车辆左右进入，加塞，不需要非常严格判断非常远，判断近距离即可");
-                           play_sound(cityroad_voiceId);
-                           break;
-                       case 3:
-                           road_text.setText("郊外");
-                           alarm_mode = 2;
-                           //person_detect_focus = 1;
-                           toast_msg( "郊外模式，人车少的地方，加强对周边区域判断，判断范围更宽，判断距离更远");
-                           play_sound(outskirts_voiceId);
-                           break;
-                   }
-
+                   show_road_type();
                    SharedPreferences userInfo = mcontext.getSharedPreferences("adas", MODE_PRIVATE);
                    SharedPreferences.Editor editor = userInfo.edit();
                    editor.putInt("road_type", road_type);
@@ -666,6 +1047,9 @@ public class MainActivity extends AppCompatActivity {
                 txt_person_focus.setText("关闭");
                 break;
             case 1:
+                if(advanced_func_key !=0) {
+                    far_enhanced_detect = true;
+                }
                 txt_person_focus.setText("开启");
                 break;
         }
@@ -686,11 +1070,12 @@ public class MainActivity extends AppCompatActivity {
                   int soundid ;
                   switch (person_detect_focus){
                       case 0:
-                          txt_person_focus.setText("普通");
+                          txt_person_focus.setText("关闭");
                           play_sound(person_focus_off_voiceId);
                           break;
                       case 1:
                           txt_person_focus.setText("开启");
+                          far_enhanced_detect = true;
                           toast_msg( "已开启");
                           play_sound(person_focus_on_voiceId);
                           break;
@@ -704,7 +1089,13 @@ public class MainActivity extends AppCompatActivity {
           }
         );
 
-
+        btnInputSize.setLongClickable(true);
+        btnInputSize.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return false;
+            }
+        });
         btnInputSize.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -716,11 +1107,30 @@ public class MainActivity extends AppCompatActivity {
                 toast_msg("分辨率低，运算速度更快，反应越快，但可能降低一点识别准确率");
 
                 input_size_idx ++ ;
-                if (input_size_idx>2){
+                if (input_size_idx>5){
                     input_size_idx = 0;
                 }
+                SharedPreferences userInfo = mcontext.getSharedPreferences("adas", MODE_PRIVATE);
+                SharedPreferences.Editor editor = userInfo.edit();
+                editor.putInt("input_size_idx", input_size_idx);
+                editor.commit();
                 startCamera();
             }});
+
+        btnPhoto.setLongClickable(true);
+        btnPhoto.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                USE_FAST_EXP = !USE_FAST_EXP;
+                LSTR.setFastExp(USE_FAST_EXP);
+                if(USE_FAST_EXP){
+                    toast_msg("开启 FAST_EXP：检测道路更快");
+                }else {
+                    toast_msg("关闭 FAST_EXP：检测道路会慢点，但准确度更高一点点");
+                }
+                return true;
+            }
+        });
         btnPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -760,12 +1170,14 @@ public class MainActivity extends AppCompatActivity {
         btnParam_setting.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                USE_GPU = !USE_GPU;
                 direction_center_x_offset = 0;
                 SharedPreferences userInfo = MainActivity.mcontext.getSharedPreferences("adas", MODE_PRIVATE);
                 SharedPreferences.Editor editor = userInfo.edit();
                 editor.putFloat("direction_center_x_offset", direction_center_x_offset);
+                editor.putBoolean("USE_GPU", USE_GPU);
                 editor.commit();
-                toast_msg("隐藏参数已经重置");
+                toast_msg("隐藏参数已经重置,USE_GPU="+(USE_GPU?"True":"False"));
                 return true;
             }
         });
@@ -774,45 +1186,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 param_toggle = !param_toggle;
-                if(param_toggle){
-                    nmsSeekBar.setEnabled(true);
-                    thresholdSeekBar.setEnabled(true);
-                    tvNMS.setVisibility(View.VISIBLE);
-                    tvThreshold.setVisibility(View.VISIBLE);
-                    nmsSeekBar.setVisibility(View.VISIBLE);
-                    thresholdSeekBar.setVisibility(View.VISIBLE);
-                    tvNMNThreshold.setVisibility(View.VISIBLE);
-                    tvAlarmWait.setVisibility(View.VISIBLE);
-                    alarmWaitSeekBar.setVisibility(View.VISIBLE);
-                    DetectWidthSeekBar.setEnabled(true);
-                    tvDetectWidth.setVisibility(View.VISIBLE);
-                    DetectWidthSeekBar.setVisibility(View.VISIBLE);
-                    frontSeekBar.setEnabled(true);
-                    tvFront.setVisibility(View.VISIBLE);
-                    frontSeekBar.setVisibility(View.VISIBLE);
-
-                }else {
-                    nmsSeekBar.setEnabled(false);
-                    thresholdSeekBar.setEnabled(false);
-                    tvNMS.setVisibility(View.GONE);
-                    tvThreshold.setVisibility(View.GONE);
-                    nmsSeekBar.setVisibility(View.GONE);
-                    thresholdSeekBar.setVisibility(View.GONE);
-                    tvNMNThreshold.setVisibility(View.GONE);
-                    tvAlarmWait.setVisibility(View.GONE);
-                    alarmWaitSeekBar.setVisibility(View.GONE);
-                    DetectWidthSeekBar.setEnabled(false);
-                    tvDetectWidth.setVisibility(View.GONE);
-                    DetectWidthSeekBar.setVisibility(View.GONE);
-                    frontSeekBar.setEnabled(false);
-                    tvFront.setVisibility(View.GONE);
-                    frontSeekBar.setVisibility(View.GONE);
-
-                    btnRoadType.setVisibility(View.VISIBLE);
-                    TextView textView = findViewById(R.id.txtRoadType);
-                    textView.setVisibility(View.VISIBLE);
-                }
-
+                show_param();
             }
         });
 
@@ -825,24 +1199,14 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 alarm_mode ++;
-                if (alarm_mode >3){
+                if (alarm_mode >4){
                     alarm_mode = 0;
                 }
-                switch (alarm_mode){
-                    case 0:
-                        toast_msg("设置为静音模式");
-                        break;
-                    case 1:
-                        play_alarm(1.0f);
-                        toast_msg("设置为普通模式");
-                        break;
-                    case 2:
-                        toast_msg("只关闭车道偏离警告提示音");
-                        break;
-                    case 3:
-                        toast_msg("只关闭物体警告提示音");
-                        break;
+                show_alarm_mode(true);
+                if(alarm_mode==1){
+                    play_sound(sound_on_voiceId);
                 }
+
                 /*if(alarm_mode!=0){
                     SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
                     SharedPreferences.Editor editor = userInfo.edit();
@@ -851,6 +1215,8 @@ public class MainActivity extends AppCompatActivity {
                 }*/
             }
         });
+
+        show_hit_predict(false);
 
 
 /*
@@ -876,7 +1242,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 view_setting_lines = !view_setting_lines;
+                far_enhanced_detect = true;
                 view_setting();
+                param_toggle = false;
+                show_param();
                 checkCamera();
             }
         });
@@ -947,6 +1316,8 @@ public class MainActivity extends AppCompatActivity {
             //btnVideo.setVisibility(View.GONE);
         }
         btnSetting.setVisibility(View.VISIBLE);
+
+
     }
 
     protected void initViewID() {
@@ -957,8 +1328,47 @@ public class MainActivity extends AppCompatActivity {
         tvDetectWidth= findViewById(R.id.txtDetectWidth);
         DetectWidthSeekBar= findViewById(R.id.txtDetectWidthSeek);
         btnAdvanced_key= findViewById(R.id.advanced_btn);
-
+        CityDetectHeightSeekBar = findViewById(R.id.txtCityDetectHeightSeek);
+        tvCityDetectHeight = findViewById(R.id.txtCityDetectHeight);
+        tvLaneDetectHeight  = findViewById(R.id.txtLaneDetectHeight);
+        laneDetectHeightSeekBar  = findViewById(R.id.LaneDetectHeightSeek);
+        btnMute = findViewById(R.id.mute_btn);
         iv_detect_input= findViewById(R.id.detect_input);
+
+        iv_detect_input.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_detect_input.setVisibility(View.GONE);
+            }
+        });
+
+        iv_detect_input.setLongClickable(true);
+        iv_detect_input.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                far_enhanced_detect = false;
+                if(!far_enhanced_detect){
+                    toast_msg("远处增强检测已关闭，点击设置按钮重新开启");
+                }
+
+                return true;
+            }
+        });
+        if(advanced_func_key!=0) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    iv_detect_input.setVisibility(View.VISIBLE);
+                }
+            });
+        }else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    iv_detect_input.setVisibility(View.GONE);
+                }
+            });
+        }
         iv_lane_input= findViewById(R.id.lane_input);
         tvNMNThreshold = findViewById(R.id.valTxtView);
         tvFront = findViewById(R.id.txtFront);
@@ -983,11 +1393,16 @@ public class MainActivity extends AppCompatActivity {
         btnRoadType= findViewById(R.id.roadType_btn);
         btnPhoto = findViewById(R.id.button);
         btnInputSize = findViewById(R.id.input_size_btn);
+        btnDistance_setting = findViewById(R.id.distance_setting_btn);
+        btnHitPredict= findViewById(R.id.hit_predict_setting_btn);
+        btnScreenAutoOff = findViewById(R.id.screen_off_btn);
+        btnUltra_fast = findViewById(R.id.ultra_fast_btn);
         btnAbout = findViewById(R.id.about_btn);
         btnAbout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Uri uri = Uri.parse("http://hayoou.com/adas");
+                Utils.check_app_update();
+                Uri uri = Uri.parse("http://hayoou.com/safeapp");
                 Intent i = new Intent(Intent.ACTION_VIEW,uri);
                 i.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
@@ -1012,9 +1427,9 @@ public class MainActivity extends AppCompatActivity {
         sbVideo = findViewById(R.id.sb_video);
         sbVideo.setVisibility(View.GONE);
         sbVideoSpeed = findViewById(R.id.sb_video_speed);
-        sbVideoSpeed.setMin(VIDEO_SPEED_MIN);
+        /*sbVideoSpeed.setMin(VIDEO_SPEED_MIN);
         sbVideoSpeed.setMax(VIDEO_SPEED_MAX);
-        sbVideoSpeed.setVisibility(View.GONE);
+        sbVideoSpeed.setVisibility(View.GONE);*/
     }
 
     protected void initModel() {
@@ -1044,23 +1459,26 @@ public class MainActivity extends AppCompatActivity {
             YOLOv5.initCustomLayer(getAssets(), USE_GPU);
         } else if (USE_MODEL == NANODET) {
             NanoDet.init(getAssets(), USE_GPU);
+        }else if (USE_MODEL == YOLOX) {
+
         }
 
         if(CONFIG_MULTI_DETECT || USE_MODEL == LANE_LSTR){
             //YOLOv5.init(getAssets(), USE_GPU);
-            YOLOv4.init(getAssets(), 0, USE_GPU);
+            NanoDet.init(getAssets(), USE_GPU);
+            //YOLOv4.init(getAssets(), 0, false);
+            NcnnYolox.loadModel(getAssets(),1, USE_GPU?1:0);
             LSTR.init(getAssets(), 0, USE_GPU);
         }
     }
 
-    public void toast_msg(String msg){
-        runOnUiThread(new Runnable() {
+    public static void toast_msg(String msg){
+        mactivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(mcontext,msg,Toast.LENGTH_LONG).show();
             }
         });
-
     }
 
     private void updateTransform() {
@@ -1088,6 +1506,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void startCamera() {
         CameraX.unbindAll();
+        /*int numberOfCameras = CameraX.getCameraWithLensFacing();// 获取摄像头个数
+        //遍历摄像头信息
+        for (String cameraId = ""; cameraId < numberOfCameras; cameraId++) {
+            CameraX.CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
+            CameraX.getCameraInfo(cameraId, cameraInfo);
+            if (cameraInfo.facing == CameraX.CameraInfo.CAMERA_FACING_FRONT) {//前置摄像头
+                mCamera = CameraX.open(cameraId);//打开摄像头
+            }
+        }*/
         /*
         Size screen = new Size(1920,1080); //size of the screen
         Rational aspectRatio = new Rational( 1920,1080);
@@ -1124,8 +1551,8 @@ public class MainActivity extends AppCompatActivity {
     private UseCase gainAnalyzer(DetectAnalyzer detectAnalyzer) {
         ImageAnalysisConfig.Builder analysisConfigBuilder = new ImageAnalysisConfig.Builder();
         analysisConfigBuilder.setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE);
-        int[][] input_size_a = new int[][] { new int[] {640 ,480},new int[] {800 ,600},
-                new int[] {1280 ,720},new int[] {1920 ,1080}};
+        int[][] input_size_a = new int[][] { new int[] {640 ,480},new int[] {960 ,720},
+                new int[] {1280 ,960},new int[] {1440 ,1080},new int[] {1920 ,1440},new int[] {2560 ,1920}};
         analysisConfigBuilder.setTargetResolution(new Size(input_size_a[input_size_idx][0], input_size_a[input_size_idx][1]));  // 输出预览图像尺寸
         ImageAnalysisConfig config = analysisConfigBuilder.build();
         ImageAnalysis analysis = new ImageAnalysis(config);
@@ -1146,6 +1573,44 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+    }
+
+    public void show_alarm_mode(boolean notice){
+        TextView txt_mute = findViewById(R.id.txt_mute);
+        switch (alarm_mode){
+            case 0:
+                if(notice) {
+                    toast_msg("设置为静音模式");
+                }
+                txt_mute.setText("静音");
+                break;
+            case 1:
+                //play_alarm(1.0f);
+                if(notice) {
+                    toast_msg("提示音已经恢复");
+                }
+                //play_sound(sound_on_voiceId);
+                txt_mute.setText("正常");
+                break;
+            case 2:
+                if(notice) {
+                    toast_msg("只关闭车道偏离警告提示音");
+                }
+                txt_mute.setText("关闭车道警告");
+                break;
+            case 3:
+                if(notice) {
+                    toast_msg("只关闭物体警告提示音");
+                }
+                txt_mute.setText("关闭物体警告");
+                break;
+            case 4:
+                if(notice) {
+                    toast_msg("只关闭前车起步提示音");
+                }
+                txt_mute.setText("关闭前车起步");
+                break;
+        }
     }
 
     private byte[] imagetToNV21(ImageProxy image) {
@@ -1181,8 +1646,17 @@ public class MainActivity extends AppCompatActivity {
         if (detectCamera.get() || detectPhoto.get() || detectVideo.get()) {
             return;
         }
+        frame_count ++;
         detectCamera.set(true);
-        startTime = System.currentTimeMillis();
+        /*
+        if(road_type == 3) {
+            if (!ultra_fast_mode || ultra_fast_mode && frame_count % 2 == 1) {
+                detectCamera.set(true);
+            }
+        }else if(!ultra_fast_mode || ultra_fast_mode && frame_count %3 == 2){
+            detectCamera.set(true);
+        }*/
+
         bitmapsrc = imageToBitmap(image);  // 格式转换
         //resizedBitmap = Bitmap.createScaledBitmap(bitmapsrc,  viewFinder.getWidth(), viewFinder.getHeight()+1, true);
 
@@ -1216,19 +1690,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Matrix matrix = new Matrix();
+                current_rotation_degree = rotationDegrees;
+
                 if(rotationDegrees == 90){
                     matrix.postRotate(90);
                     width = bitmapsrc.getWidth();
                     height = bitmapsrc.getHeight();
                     Bitmap bitmap = Bitmap.createBitmap(bitmapsrc, 0, 0, width, height, matrix, true);
                     //Log.d("detectOnModel","rotationDegrees:"+rotationDegrees+" width:"+width+ " after width:"+bitmap.getWidth()+ " height:"+bitmap.getHeight());
-                    detectAndDraw(bitmap,null);
+                    detectAndDraw(bitmap,null,frame_count);
+                    showResultOnUI();
                 }else {
-                    matrix.postRotate(0);
 
                     width = bitmapsrc.getWidth();
                     height = bitmapsrc.getHeight();
-                    //matrix.postScale((float)width/640,(float)height/480);
+
                     //Bitmap bitmap = Bitmap.createBitmap(bitmapsrc, 0, 0, 640, 480, matrix, false);
                     //Bitmap resizedBitmap1 = Bitmap.createScaledBitmap(bitmapsrc, viewFinder.getWidth(), viewFinder.getWidth() * height/width, true);
 
@@ -1236,46 +1712,80 @@ public class MainActivity extends AppCompatActivity {
                     //Bitmap resizedBitmap1 =Bitmap.createScaledBitmap(bitmapsrc, 640, 480, false);
                     Bitmap resizedBitmap1 = Bitmap.createBitmap(bitmapsrc,  0,2,width, height-2,null, false);
                     float lane_vertual_height = (float)width * 288/800;
-
+                    /*
+                    matrix.postRotate(0);
+                    matrix.postScale(800/(float)width,288.f/lane_vertual_height);
+                    boolean filter = false;
+                    if(width < 800){
+                        filter = true;
+                    }
+                    Bitmap lane_Bitmap = Bitmap.createBitmap(bitmapsrc,0 ,(int)(height - lane_vertual_height)/2
+                            , width,  (int)lane_vertual_height, matrix, filter);
+                    */
                     Bitmap lane_Bitmap = Bitmap.createBitmap(bitmapsrc,0 ,(int)(height - lane_vertual_height)/2
                             , width, (int)lane_vertual_height, null, false);
                     //Log.d("detectOnModel","rotationDegrees:"+rotationDegrees+" width:"+width+ " after width:"+resizedBitmap.getWidth()+ " height:"+resizedBitmap.getHeight());
-                    detectAndDraw(resizedBitmap1,lane_Bitmap);
+                    //detectAndDraw(resizedBitmap1,lane_Bitmap,frame_count);
+                    if(ultra_fast_mode) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                detectAndDraw(resizedBitmap1, lane_Bitmap, frame_count);
+                                showResultOnUI();
+                            }
+                        }).start();
+                    }else{
+                        detectAndDraw(resizedBitmap1, lane_Bitmap, frame_count);
+                        showResultOnUI();
+                    }
+
                 }
 
-                current_rotation_degree = rotationDegrees;
-                showResultOnUI();
+
+
             }
         });
     }
 
     protected void showResultOnUI() {
+        //detectCamera.set(false);
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                detectCamera.set(false);
                 //Bitmap resizedBitmap = Bitmap.createScaledBitmap(mutableBitmap, viewFinder.getWidth(), viewFinder.getHeight(), true);
 
                 resultImageView.setImageBitmap(mutableBitmap);
                 endTime = System.currentTimeMillis();
                 long dur = endTime - startTime;
+                startTime = endTime;
                 float fps = (float) (1000.0 / dur);
                 if(recent_fps <0.1){
                     recent_fps = fps;
                 }else {
-                    recent_fps = 0.6f * recent_fps + 0.4f * fps;
+                    recent_fps = 0.95f * recent_fps + 0.05f * fps;
                 }
                 total_fps = (total_fps == 0) ? fps : (total_fps + fps);
                 fps_count++;
+
                 String modelName = getModelName();
                 DateFormat df2 = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.CHINA);
                 DateFormat df8 = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.CHINA);
                 String date2 = df2.format(new Date());
                 String time4 = df8.format(new Date());
-
+                BatteryManager manager = (BatteryManager) getSystemService(BATTERY_SERVICE);
+                /*manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
+                manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);*/
+                int battery_current =manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW); //BATTERY_PROPERTY_CURRENT_NOW
+                int battery_persent = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);///当前电量百分比
+                if(Math.abs(battery_current)>4000){
+                    battery_current = battery_current / 1000;
+                }
                 String outmsg=String.format(Locale.CHINESE,
-                        "哈友安全驾驶\nV1.2\n%s\n图像: %dx%d\n处理时间: %.3f s\n平均FPS: %.3f\n\n",
-                        date2+"\n"+time4,  width,height, dur / 1000.0, (float) total_fps / fps_count);
+                        // 温度：%.1f ℃
+                        "哈友安全驾驶\nV%s\n%s\n图像: %dx%d\n处理时间: \n%.3f s\nFPS: %.3f\n电量：%d %%\n电流：%d mA\n前方物体速度：%.1f m/s\n距离：%.1f m\n\n",
+                        app_version,date2+"\n"+time4, width,height, dur / 1000.0, recent_fps,battery_persent,battery_current,near_object_speed,near_object_distance);
+                //(float) total_fps / fps_count
                 outmsg += detect_msg;
                 tvInfo.setText(outmsg );
             }
@@ -1427,16 +1937,17 @@ public class MainActivity extends AppCompatActivity {
             // 标签跟框放后面画，防止被 mask 挡住
             maskPaint.setColor(mask.getColor());
             maskPaint.setStyle(Paint.Style.FILL);
-            canvas.drawText(mask.getLabel() + String.format(Locale.CHINESE, " %.3f",
+            canvas.drawText(mask.getLabel() + String.format(Locale.CHINESE, " %.2f%%",
                     mask.getProb()), mask.left, mask.top - 15 * mutableBitmap.getWidth() / 1000.0f, maskPaint);
             maskPaint.setStyle(Paint.Style.STROKE);
             canvas.drawRect(new RectF(mask.left, mask.top, mask.right, mask.bottom), maskPaint);
+
         }
         return mutableBitmap;
     }
 
 
-    protected Bitmap drawBoxRects(Bitmap mutableBitmap, Box[] results) {
+    protected Bitmap drawBoxRects(Bitmap mutableBitmap, Box[] results,int lane_offset,int frame_count) {
 
         Canvas canvas ;
         try {
@@ -1451,7 +1962,9 @@ public class MainActivity extends AppCompatActivity {
             //throw e;
             return resizedBitmap;
         }
-        msafeDetect.safeDetect(canvas,results,this);
+        Distance distance = new Distance(canvas,results,lane_offset);
+        SafeDetect.safe_region_param sp = get_safe_zone_detect(mutableBitmap.getWidth(),mutableBitmap.getHeight());
+        msafeDetect.safeDetect(canvas,results,this,sp,distance,lane_offset,frame_count);
 
         if (!view_setting_lines &&(  results == null || results.length <= 0)) {
             return mutableBitmap;
@@ -1484,6 +1997,7 @@ public class MainActivity extends AppCompatActivity {
         boxPaint.setStrokeWidth(2 * mutableBitmap.getWidth() / 800.0f);
         boxPaint.setTextSize(18 * mutableBitmap.getWidth() / 800.0f);
 
+
         for (Box box : results) {
             if (USE_MODEL == MOBILENETV2_YOLOV3_NANO) {
                 if (box.getScore() < 0.15f) {
@@ -1502,14 +2016,18 @@ public class MainActivity extends AppCompatActivity {
                 if(label>28 && !( label==56 || label==57 ) ){
                     continue;
                 }
-
-                canvas.drawText(box.getLabel() + String.format(Locale.CHINESE, " %.3f", box.getScore()), box.x0 + 3, box.y0 + 30 * mutableBitmap.getWidth() / 1000.0f, boxPaint);
+                canvas.drawText(box.getLabel() + String.format(Locale.CHINESE, " %d%%\n%2.1fm", (int)(box.getScore()*100),
+                        distance.getDistance(box,results,sp,canvas,lane_offset)),
+                        box.x0 + 3, box.y0 + 30 * canvas_width / 1000.0f, boxPaint);
                 rect = box.getRect();
                 boxPaint.setStyle(Paint.Style.STROKE);
                 //canvas.drawRect(new RectF(rect.left*scaleX ,rect.top*scaleY ,rect.right*scaleX ,
                 //       rect.bottom*scaleY ), boxPaint);
                 canvas.drawRect(rect, boxPaint);
             }else{
+                if(box.score<=0){
+                    continue;
+                }
                 switch (box.label){
                     case 1000:
                         boxPaint.setColor(Color.argb(255,255,255,255));
@@ -1617,16 +2135,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    protected Bitmap detectAndDraw(Bitmap image,Bitmap image2) {
+    protected Bitmap detectAndDraw(Bitmap image,Bitmap image2,int frame_count) {
         Box[] result = null;
+        Box[] result1 = null;
         Box[] result2= null;
+
         KeyPoint[] keyPoints = null;
         YolactMask[] yolactMasks = null;
         FaceKeyPoint[] faceKeyPoints = null;
         float[] enetMasks = null;
 
         set_input_image(image,image2);
-
+        /*
         if (USE_MODEL == YOLOV5S) {
             result = YOLOv5.detect(image, threshold, nms_threshold);
         } else if (USE_MODEL == YOLOV4_TINY || USE_MODEL == MOBILENETV2_YOLOV3_NANO || USE_MODEL == YOLO_FASTEST_XL) {
@@ -1649,18 +2169,103 @@ public class MainActivity extends AppCompatActivity {
             result = YOLOv5.detectCustomLayer(image, threshold, nms_threshold);
         } else if (USE_MODEL == NANODET) {
             result = NanoDet.detect(image, threshold, nms_threshold);
-        } else if (USE_MODEL == LANE_LSTR) {
-            result = YOLOv4.detect(image, threshold, nms_threshold);
-            result2 = LSTR.detect(image2, threshold, nms_threshold);
+        } else
+            */
+            if (USE_MODEL == LANE_LSTR) {
+            if(( !ultra_fast_mode || ultra_fast_mode &&((road_type !=3 && frame_count %3 == 0 ) || (road_type ==3 && frame_count %2 == 0)))) {
+                /*while(detectYolov4.get()){
+                }
+                detectYolov4.set(true);*/
+                if (USE_YOLOV4_DETECT == 0){
+                    result = NcnnYolox.detect(image, threshold, nms_threshold);
+                    //result = NanoDet.detect(image, threshold, nms_threshold);
+                }else if (USE_YOLOV4_DETECT <= 3) {
+                    result = YOLOv4.detect(image, threshold, nms_threshold);
+                } else if (USE_YOLOV4_DETECT == 4){
+                    result = YOLOv5.detect(image, threshold, nms_threshold);
+                    //result = NanoDet.detect(image, threshold, nms_threshold);
+                }
+                detectYolov4.set(false);
+                detect_full_result = result;
+            }else{
+                result = detect_full_result;
+            }
+            //more far
+            if(advanced_func_key!=0 && far_enhanced_detect &&
+             ( !ultra_fast_mode || ultra_fast_mode &&((road_type !=3 && frame_count %3 == 1 ) || (road_type ==3 && frame_count %2 == 1)))
+                ) {
+                float cut_scale = 8.f;
+                if (image.getWidth() <= 640){
+                    cut_scale = 6.0f;
+                }
+                int small_box_half_width = (int)((float)image.getWidth() /cut_scale);
+                int startX = (int)((float)image.getWidth() /2 - small_box_half_width) + (int)direction_center_x_offset;
+                int startY = (int)((float)image.getHeight()/2 - small_box_half_width);
+                // < 320 to scale with filter
+                boolean filter = small_box_half_width *2 < 320;
+                Bitmap image1 = Bitmap.createBitmap(image, startX,startY,small_box_half_width*2,small_box_half_width*2,null,filter);
+                /*while(detectYolov4.get()){
+                }
+                detectYolov4.set(true);*/
+                if (USE_YOLOV4_DETECT == 0){
+                    result1 = NcnnYolox.detect(image1, threshold, nms_threshold);
+                    //result = NanoDet.detect(image, threshold, nms_threshold);
+                }else if (USE_YOLOV4_DETECT <= 3) {
+                    result1 = YOLOv4.detect(image1, threshold, nms_threshold);
+                } else if (USE_YOLOV4_DETECT == 4){
+                    result1 = YOLOv5.detect(image1, threshold, nms_threshold);
+                    //result = NanoDet.detect(image, threshold, nms_threshold);
+                }
+                detectYolov4.set(false);
+                if(result1!=null) {
+                    for (int i = 0; i < result1.length; i++) {
+                        result1[i].x0 += startX;
+                        result1[i].y0 += startY;
+                        result1[i].x1 += startX;
+                        result1[i].y1 += startY;
+                    }
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //iv_detect_input.setVisibility(View.VISIBLE);
+                        iv_detect_input.setImageBitmap(image1);
+                    }
+                });
+                detect_far_result = result1;
+            }else{
+                //iv_detect_input.setVisibility(View.GONE);
+                result1 = detect_far_result;
+            }
+
+            if(road_type == 3) {
+                lane_result = null;
+                result2 = null;
+                /*if(!ultra_fast_mode || ultra_fast_mode && frame_count %2==1) {
+                    detectCamera.set(false);
+                }*/
+            }else {
+
+                if ( (!ultra_fast_mode || ultra_fast_mode && frame_count % 3 == 2)
+                ) {
+                    result2 = LSTR.detect(image2, threshold, nms_threshold);
+                    lane_result = result2;
+                    //
+                } else {
+                    result2 = lane_result;
+                }
+            }
+
+
         }
 
-        if (!view_setting_lines && result == null && result2==null && keyPoints == null && yolactMasks == null && enetMasks == null && faceKeyPoints == null) {
+        if (!view_setting_lines && result == null  && result1 == null && result2==null && keyPoints == null && yolactMasks == null && enetMasks == null && faceKeyPoints == null) {
             detectCamera.set(false);
             return image;
         }
         if (USE_MODEL == YOLOV5S || USE_MODEL == YOLOV4_TINY || USE_MODEL == MOBILENETV2_YOLOV3_NANO
                 || USE_MODEL == YOLOV5_CUSTOM_LAYER || USE_MODEL == NANODET || USE_MODEL == YOLO_FASTEST_XL) {
-            mutableBitmap = drawBoxRects(image, result);
+            mutableBitmap = drawBoxRects(image, result,0,frame_count);
 
         } else if (USE_MODEL == SIMPLE_POSE) {
             mutableBitmap = drawPersonPose(image, keyPoints);
@@ -1701,8 +2306,42 @@ public class MainActivity extends AppCompatActivity {
                 mResultView.invalidate();
                 mResultView.setVisibility(View.VISIBLE);
             });*/
-            mutableBitmap = drawBoxRects(image, result);
-            mutableBitmap = drawBoxRects(mutableBitmap, result2);  // 与 enet 相同
+            int all_count =0;
+            if(result!=null){
+                all_count += result.length;
+            }
+            if(result1!=null){
+                all_count += result1.length;
+            }
+            if(result2!=null){
+                all_count += result2.length;
+            }
+
+            Box[] result_all = new Box[all_count ];
+            int result_all_i = 0;
+            if(result!=null) {
+                for (int i = 0; i < result.length; i++) {
+                    result_all[result_all_i] = result[i];
+                    result_all_i ++;
+                }
+            }
+            if(result1!=null) {
+                for (int i = 0; i < result1.length; i++) {
+                    result_all[result_all_i] = result1[i];
+                    result_all_i ++;
+                }
+            }
+            int lane_offset = result_all_i;
+            if(result2!=null) {
+                for (int i = 0; i < result2.length; i++) {
+                    result_all[result_all_i] = result2[i];
+                    result_all_i ++;
+                }
+            }
+            detectCamera.set(false);
+            mutableBitmap = drawBoxRects(image, result_all,lane_offset,frame_count);
+            //mutableBitmap = drawBoxRects(image, result1);
+            //mutableBitmap = drawBoxRects(mutableBitmap, result2);  // 与 enet 相同
 
 
         }
@@ -1812,6 +2451,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         CameraX.unbindAll();
+        frame_count ++;
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1820,7 +2460,7 @@ public class MainActivity extends AppCompatActivity {
                 width = image.getWidth();
                 height = image.getHeight();
 
-                mutableBitmap = detectAndDraw(mutableBitmap,null);
+                mutableBitmap = detectAndDraw(mutableBitmap,null,frame_count);
 
                 final long dur = System.currentTimeMillis() - start;
                 runOnUiThread(new Runnable() {
@@ -1828,7 +2468,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         String modelName = getModelName();
                         resultImageView.setImageBitmap(mutableBitmap);
-                        tvInfo.setText(String.format(Locale.CHINESE, "%s\nSize: %dx%d\nTime: %.3f s\nFPS: %.3f",
+                        tvInfo.setText(String.format(Locale.CHINESE, "%s\nSize: %dx%d\nTime: %.2f s\nFPS: %.1f",
                                 modelName, height, width, dur / 1000.0, 1000.0f / dur));
                     }
                 });
@@ -1890,6 +2530,7 @@ public class MainActivity extends AppCompatActivity {
                 sbVideo.setMax(duration * 1000);
                 float frameDis = 1.0f / fps * 1000 * 1000 * videoSpeed;
                 videoCurFrameLoc = 0;
+                frame_count ++;
                 while (detectVideo.get() && (videoCurFrameLoc) < (duration * 1000)) {
                     videoCurFrameLoc = (long) (videoCurFrameLoc + frameDis);
                     sbVideo.setProgress((int) videoCurFrameLoc);
@@ -1903,7 +2544,7 @@ public class MainActivity extends AppCompatActivity {
                     height = b.getHeight();
                     final Bitmap bitmap = Bitmap.createBitmap(b, 0, 0, width, height, matrix, false);
                     startTime = System.currentTimeMillis();
-                    detectAndDraw(bitmap.copy(ARGB_8888, true),null);
+                    detectAndDraw(bitmap.copy(ARGB_8888, true),null,frame_count);
                     showResultOnUI();
                     frameDis = 1.0f / fps * 1000 * 1000 * videoSpeed;
                 }
@@ -1993,7 +2634,8 @@ public class MainActivity extends AppCompatActivity {
             last_press_back_time = System.currentTimeMillis();
             view_setting_lines = false;
             view_setting();
-
+            param_toggle = false;
+            show_param();
         } else {
             super.onBackPressed();
         }
@@ -2060,7 +2702,7 @@ public class MainActivity extends AppCompatActivity {
             //String t = String.valueOf( new Date().getTime())+String.valueOf( (new Random().nextInt(10000)));
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setView(edits);
-            builder.setTitle( "高级功能，赞助获取激活码。 微信： hayoou2 ，请输入用户名和激活码：" );
+            builder.setTitle( "高级功能，赞助获取激活码。 微信： youkpan ，请输入用户名和激活码：" );
             builder.setPositiveButton("激活", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -2101,6 +2743,23 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (isok){
+
+                        advanced_func_key = testkey;
+                        toast_msg("激活完成，用户注册成功，激活码已配置");
+                        SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = userInfo.edit();
+                        editor.putString("openid", openid);
+                        editor.putLong("advanced_func_key", advanced_func_key);
+                        long key_create_time = new Date().getTime();
+                        editor.putLong("key_create_time", key_create_time);
+                        editor.commit();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                iv_detect_input.setVisibility(View.VISIBLE);
+                            }
+                        });
+                        /*
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -2121,11 +2780,21 @@ public class MainActivity extends AppCompatActivity {
                                             SharedPreferences.Editor editor = userInfo.edit();
                                             editor.putString("openid", openid);
                                             editor.putLong("advanced_func_key", advanced_func_key);
+                                            long key_create_time = new Date().getTime();
+                                            editor.putLong("key_create_time", key_create_time);
                                             editor.commit();
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    iv_detect_input.setVisibility(View.VISIBLE);
+                                                }
+                                            });
                                         }else if(resp.equals("max active count")){
                                             toast_msg("激活失败，激活次数过多");
                                         }else if(resp.equals("error key")){
                                             toast_msg("激活失败，激活码已被使用");
+                                        }else if(resp.equals("expire key")){
+                                            toast_msg("激活失败，激活码已过期");
                                         }else{
                                             toast_msg("激活失败，未知错误，请检查网络状态");
                                         }
@@ -2137,6 +2806,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }).start();
+
+                         */
                     }
 
                     dialog.cancel();
@@ -2160,12 +2831,13 @@ public class MainActivity extends AppCompatActivity {
         if(view_setting_lines){
             //TextView FPS_info = findViewById(R.id.FPS_info);
             tvInfo.setVisibility(View.VISIBLE);
-            viewFinder.setVisibility(View.VISIBLE);
-            //iv_detect_input.setVisibility(View.VISIBLE);
+            //viewFinder.setVisibility(View.VISIBLE);
+            iv_detect_input.setVisibility(View.GONE);
             iv_lane_input.setVisibility(View.VISIBLE);
             mResultView.setVisibility(View.GONE);
             btnPhoto.setVisibility(View.VISIBLE);
             btnInputSize.setVisibility(View.VISIBLE);
+            //btnDistance_setting.setVisibility(View.VISIBLE);
             toast_msg("请将绿色水平参考线对准地平线，垂直线对准前方道路中间。");
 
             btnZhangying.setVisibility(View.VISIBLE);
@@ -2190,16 +2862,22 @@ public class MainActivity extends AppCompatActivity {
 
             LinearLayout left_func_area = findViewById(R.id.left_func_area);
             left_func_area.setVisibility(View.GONE);
+
         }else{
             USE_DEBUG_PHOTO_ID=0;
             viewFinder.setVisibility(View.GONE);
             //tvInfo.setVisibility(View.GONE);
-            iv_detect_input.setVisibility(View.GONE);
+
+            if(advanced_func_key!=0) {
+                iv_detect_input.setVisibility(View.VISIBLE);
+            }else {
+                iv_detect_input.setVisibility(View.GONE);
+            }
             iv_lane_input.setVisibility(View.GONE);
             mResultView.setVisibility(View.GONE);
             btnPhoto.setVisibility(View.GONE);
             btnInputSize.setVisibility(View.GONE);
-
+            btnDistance_setting.setVisibility(View.GONE);
             tvNMS.setVisibility(View.GONE);
             tvThreshold.setVisibility(View.GONE);
             nmsSeekBar.setVisibility(View.GONE);
@@ -2224,10 +2902,196 @@ public class MainActivity extends AppCompatActivity {
             btnSwitch_alarm_mode.setVisibility(View.GONE);
             btnParam_setting.setVisibility(View.GONE);
 
-
             LinearLayout left_func_area = findViewById(R.id.left_func_area);
             left_func_area.setVisibility(View.VISIBLE);
+
+            CityDetectHeightSeekBar.setEnabled(false);
+            CityDetectHeightSeekBar.setVisibility(View.GONE);
+            tvCityDetectHeight.setVisibility(View.GONE);
+
+            laneDetectHeightSeekBar.setVisibility(View.GONE);
+            tvLaneDetectHeight.setVisibility(View.GONE);
         }
 
+    }
+
+    public void show_road_type(){
+        TextView road_text = findViewById(R.id.txtRoadType);
+        int soundid;
+        switch (road_type){
+            case 1:
+                road_text.setText("高速");
+                alarm_mode = 1;
+                far_enhanced_detect = true;
+                toast_msg( "高速模式，检测更远，车道偏离预警启动");
+                play_sound(highway_voiceId);
+                break;
+            case 2:
+                road_text.setText("城市");
+                alarm_mode = 1;
+                far_enhanced_detect = true;
+                toast_msg( "城市模式，其他车辆左右进入，加塞，不需要非常严格判断非常远，判断近距离即可");
+                play_sound(cityroad_voiceId);
+                break;
+            case 3:
+                road_text.setText("郊外");
+                alarm_mode = 2;
+                far_enhanced_detect = true;
+                //person_detect_focus = 1;
+                toast_msg( "郊外模式，人车少的地方，加强对周边区域判断，判断范围更宽，判断距离更远，关闭车道识别");
+                play_sound(outskirts_voiceId);
+                break;
+        }
+
+        SharedPreferences userInfo = mcontext.getSharedPreferences("adas", MODE_PRIVATE);
+        SharedPreferences.Editor editor = userInfo.edit();
+        editor.putInt("road_type", road_type);
+        editor.commit();
+        show_alarm_mode(false);
+    }
+
+    public void show_param(){
+
+        if(param_toggle){
+            nmsSeekBar.setEnabled(true);
+            thresholdSeekBar.setEnabled(true);
+            tvNMS.setVisibility(View.VISIBLE);
+            tvThreshold.setVisibility(View.VISIBLE);
+            nmsSeekBar.setVisibility(View.VISIBLE);
+            thresholdSeekBar.setVisibility(View.VISIBLE);
+            tvNMNThreshold.setVisibility(View.VISIBLE);
+            tvAlarmWait.setVisibility(View.VISIBLE);
+            alarmWaitSeekBar.setVisibility(View.VISIBLE);
+            DetectWidthSeekBar.setEnabled(true);
+            tvDetectWidth.setVisibility(View.VISIBLE);
+            DetectWidthSeekBar.setVisibility(View.VISIBLE);
+            frontSeekBar.setEnabled(true);
+            tvFront.setVisibility(View.VISIBLE);
+            frontSeekBar.setVisibility(View.VISIBLE);
+            CityDetectHeightSeekBar.setEnabled(true);
+            CityDetectHeightSeekBar.setVisibility(View.VISIBLE);
+            tvCityDetectHeight.setVisibility(View.VISIBLE);
+            tvLaneDetectHeight.setVisibility(View.VISIBLE);
+            laneDetectHeightSeekBar.setVisibility(View.VISIBLE);
+            laneDetectHeightSeekBar.setEnabled(true);
+            btnDistance_setting.setVisibility(View.VISIBLE);
+            btnHitPredict.setVisibility(View.VISIBLE);
+            btnScreenAutoOff.setVisibility(View.VISIBLE);
+            btnUltra_fast.setVisibility(View.VISIBLE);
+        }else {
+            btnUltra_fast.setVisibility(View.GONE);
+            btnScreenAutoOff.setVisibility(View.GONE);
+            btnHitPredict.setVisibility(View.GONE);
+            nmsSeekBar.setEnabled(false);
+            thresholdSeekBar.setEnabled(false);
+            tvNMS.setVisibility(View.GONE);
+            tvThreshold.setVisibility(View.GONE);
+            nmsSeekBar.setVisibility(View.GONE);
+            thresholdSeekBar.setVisibility(View.GONE);
+            tvNMNThreshold.setVisibility(View.GONE);
+            tvAlarmWait.setVisibility(View.GONE);
+            alarmWaitSeekBar.setVisibility(View.GONE);
+            DetectWidthSeekBar.setEnabled(false);
+            tvDetectWidth.setVisibility(View.GONE);
+            DetectWidthSeekBar.setVisibility(View.GONE);
+            frontSeekBar.setEnabled(false);
+            tvFront.setVisibility(View.GONE);
+            frontSeekBar.setVisibility(View.GONE);
+            btnDistance_setting.setVisibility(View.GONE);
+            btnRoadType.setVisibility(View.VISIBLE);
+            TextView textView = findViewById(R.id.txtRoadType);
+            textView.setVisibility(View.VISIBLE);
+
+            CityDetectHeightSeekBar.setEnabled(false);
+            CityDetectHeightSeekBar.setVisibility(View.GONE);
+            tvCityDetectHeight.setVisibility(View.GONE);
+
+            tvLaneDetectHeight.setVisibility(View.GONE);
+            laneDetectHeightSeekBar.setVisibility(View.GONE);
+        }
+
+    }
+
+    public void init_param(){
+        SharedPreferences sharedPreferences = getSharedPreferences("adas", MODE_PRIVATE);
+        //SharedPreferences sharedPreferences = PreferenceManager.getSharedPreferences("adas",mcontext /* Activity context */);
+        threshold = sharedPreferences.getFloat("threshold", (float)threshold);
+        nms_threshold = sharedPreferences.getFloat("nms_threshold", (float)nms_threshold);
+        LaneDetectHeight = sharedPreferences.getFloat("LaneDetectHeight", (float)LaneDetectHeight);
+        front_detect = sharedPreferences.getFloat("front_detect", (float)front_detect);
+        //direction_center_x_offset = sharedPreferences.getFloat("direction_center_x_offset", (float)direction_center_x_offset);
+        alarm_wait_time = (int)sharedPreferences.getFloat("alarm_wait_time", (float)alarm_wait_time);
+        advanced_func_key = sharedPreferences.getLong("advanced_func_key", advanced_func_key);
+        long key_create_time1 = new Date().getTime();
+        key_create_time = sharedPreferences.getLong("key_create_time", key_create_time1);
+        if(key_create_time1 == key_create_time ){
+            SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
+            SharedPreferences.Editor editor = userInfo.edit();
+            editor.putLong("key_create_time", key_create_time1);
+            editor.apply();
+        }
+        input_size_idx = sharedPreferences.getInt("input_size_idx", input_size_idx);
+        DetectWidth = sharedPreferences.getFloat("DetectWidth", DetectWidth);
+        alarm_mode = sharedPreferences.getInt("alarm_mode", alarm_mode);
+        road_type = sharedPreferences.getInt("road_type", road_type);
+        auto_adjust_detect_area = sharedPreferences.getInt("auto_adjust_detect_area", auto_adjust_detect_area);
+        person_detect_focus = sharedPreferences.getInt("person_detect_focus", person_detect_focus);
+        openid = sharedPreferences.getString("openid", openid);
+        deviceid = sharedPreferences.getString("deviceid", deviceid);
+        USE_GPU = sharedPreferences.getBoolean("USE_GPU", USE_GPU);
+        carmera_height = sharedPreferences.getFloat("carmera_height", carmera_height);
+        distance_fix = sharedPreferences.getFloat("distance_fix", distance_fix);
+        vertical_distance_rate = sharedPreferences.getFloat("vertical_distance_rate", vertical_distance_rate);
+        hit_predict = sharedPreferences.getInt("hit_predict_i", hit_predict);
+
+        ultra_fast_mode= sharedPreferences.getBoolean("ultra_fast_mode", ultra_fast_mode);
+        if(deviceid.equals("")){
+            long deviceid_gen = ((new Date().getTime())) << 16 |  (SystemClock.elapsedRealtime()&0xFFFF);
+            deviceid = String.valueOf(deviceid_gen);
+            SharedPreferences userInfo = getSharedPreferences("adas", MODE_PRIVATE);
+            SharedPreferences.Editor editor = userInfo.edit();
+            editor.putString("deviceid", deviceid);
+            editor.apply();
+        }
+    }
+
+    public void show_hit_predict(boolean msgout){
+
+        if(hit_predict==1){
+            if(msgout)
+            toast_msg("高级碰撞预测 ：开,提前 3.1 秒预警，根据前方物体速度和前方物体距离，请设置好测距参数");
+            btnHitPredict.setText("碰撞预测 ：3.1秒");
+            hit_predict_time = 3.1f;
+        }else if(hit_predict==2){
+            if(msgout)
+            toast_msg("高级碰撞预测 ：开,提前 2.5 秒预警，根据前方物体速度和前方物体距离，请设置好测距参数");
+            btnHitPredict.setText("碰撞预测 ：2.5秒");
+            hit_predict_time = 2.5f;
+        }else if(hit_predict==3){
+            if(msgout)
+            toast_msg("高级碰撞预测 ：开,提前 2 秒预警，根据前方物体速度和前方物体距离，请设置好测距参数");
+            btnHitPredict.setText("碰撞预测 ：2秒");
+            hit_predict_time = 2f;
+        }else if(hit_predict==4){
+            if(msgout)
+            toast_msg("高级碰撞预测 ：开,提前 1.5 秒预警，根据前方物体速度和前方物体距离，请设置好测距参数");
+            btnHitPredict.setText("碰撞预测 ：1.5秒");
+            hit_predict_time = 1.5f;
+        }else {
+            if(msgout)
+            toast_msg("高级碰撞预测 ：关");
+            btnHitPredict.setText("碰撞预测 ：关");
+        }
+    }
+
+    public static float get_float(String s){
+        if(s.equals("")){
+            return 0;
+        }
+        try {
+            return Float.valueOf(s);
+        }catch (Exception e){
+            return  0;
+        }
     }
 }

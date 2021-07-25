@@ -41,7 +41,7 @@ public class NcnnApp extends Application {
                 .recoverInBackground(true)
                 .recoverStack(true)
                 .mainPage(MainActivity.class)
-                .recoverEnabled(true)
+                .recoverEnabled(false)
                 .callback(new MyCrashCallback())
                 .silent(false, Recovery.SilentMode.RECOVER_ACTIVITY_STACK)
 //                .skip(TestActivity.class)

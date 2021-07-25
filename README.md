@@ -13,8 +13,8 @@ https://www.bilibili.com/video/BV18K4y1n7Ht/
 Published at :
 http://hayoou.com/adas
 
-APP download ：https://pan.baidu.com/s/1whJ3_tZenroiwWHrITmbJQ
-(2021.7.24)
+APP download ：https://pan.baidu.com/s/1WThc2vVgK-FgQ40_vCc22Q 
+(2021.7.25)
 
 download code：5566 
 
@@ -30,6 +30,8 @@ https://github.com/cfzd/Ultra-Fast-Lane-Detection
 
 We also write some safe drive code,to let this project more useful :)
 
+long press 极速模式(fast mode) can change detect model(YOLOX,Yolov4 tiny ,MobileNetV2-YOLOv3,Yolo fast ,Yolo v5 tiny etc.).
+
 Contact US :
 
 hayoou_com@126.com
@@ -40,21 +42,21 @@ wechat: hayoou2
 
 哈友安全辅助驾驶 APP
 
-2021 过年好 ，出行平安最重要。
+出行平安最重要。
 
 为方便大家高速路安全驾驶，
 
 我们利用最新机器学习技术，推出了一个新版本的辅助驾驶APP。
 APP 介绍下载：http://hayoou.com/adas
 
-APP 下载 ：https://pan.baidu.com/s/1whJ3_tZenroiwWHrITmbJQ
+APP 下载 ：https://pan.baidu.com/s/1WThc2vVgK-FgQ40_vCc22Q 
 (2021.7.24)
 
 提取码：5566 
 
 全球首个安卓手机的AI辅助安全驾驶APP[鼓掌] 
  
-Yolo v4 目标检测算法 + ultra fast lane detection 车道识别 在安卓端达到 8FPS [嘿哈]
+YoloX 目标检测算法 + ultra fast lane detection 车道识别 在安卓端达到 8FPS [嘿哈]
 
 用安卓手机安装APP，通过底座固定到前方即可（吸盘支架：[淘宝](https://m.tb.cn/h.49i6HzR?sm=bdd5cd)）。
 
@@ -72,6 +74,8 @@ APP 提供车道偏离预警和碰撞预警
 
 哈友安全辅助驾驶，采用2020年底最新的车道检测和目标识别论文和算法，快速识别各种路面复杂状况，帮助你平安开高速，轻松通过人多路口，增强的行人检测机制还能帮你在夜间准确识别行人。
 
+由于安全检测算法不断更新，可以加微信 youkpan ，进我们的群获取更新通知，并关注微信公众号 ：hayoou。
+
 ----
 
 安装说明：
@@ -82,6 +86,8 @@ APP 提供车道偏离预警和碰撞预警
 安装时 点击设置按钮，确保远处地平线位于绿色水平参考线。
 
 关闭省电模式，开启高性能模式有助于提高处理速度
+
+长按极速模式按键可切换检测模型 (YOLOX,Yolov4 tiny ,MobileNetV2-YOLOv3,Yolo fast ,Yolo v5 tiny 等).
  
 ----
 

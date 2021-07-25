@@ -12,5 +12,5 @@ public class LSTR {
     public static native Box[] detect(Bitmap bitmap, double threshold, double nms_threshold);
     public static native boolean advancedKeyCheck(long advanced_key);
     public static native long getAdvancedKey(long idx);
-
+    public static native void setFastExp(boolean is_use_fast_exp);
 }

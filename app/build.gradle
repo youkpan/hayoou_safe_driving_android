@@ -5,10 +5,10 @@ android {
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.hayoou.adas"
-        minSdkVersion 26
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "2.2"
  
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -21,14 +21,17 @@ android {
         ndk {
             moduleName "WztNcnnJniLog" //编译后会生成 .so
             ldLibs "log", "z", "m"
-            abiFilters "armeabi-v7a", "arm64-v8a"  // opencv库太大只留需要的
+            abiFilters  "arm64-v8a"  // "armeabi-v7a", opencv库太大只留需要的
         }
 
         multiDexEnabled true
     }
+
     buildTypes {
         release {
             minifyEnabled false
+            //zipAlignEnabled false
+            //shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

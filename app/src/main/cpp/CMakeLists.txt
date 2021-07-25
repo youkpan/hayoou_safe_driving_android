@@ -3,7 +3,10 @@
 
 # Sets the minimum version of CMake required to build the native library.
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.10.2)
+#set(OpenCV_DIR ./opencv1/native/jni)
+#find_package(OpenCV REQUIRED core imgproc)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
 if(DEFINED ANDROID_NDK_MAJOR AND ${ANDROID_NDK_MAJOR} GREATER 20)
@@ -88,19 +91,23 @@ set_target_properties(SPIRV PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/ncn
 
 # disable rtti and exceptions
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 # enable rtti and exceptions
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -frtti")
 
-include_directories(
-        ${CMAKE_SOURCE_DIR}/opencv/include/
-)
-add_library(libopencv_java4 STATIC IMPORTED)
-set_target_properties(
-        libopencv_java4
-        PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/opencv/${ANDROID_ABI}/libopencv_java4.so
-        )
+set(OpenCV_DIR ${CMAKE_SOURCE_DIR}/opencv-mobile-4.5.3-android/sdk/native/jni)
+find_package(OpenCV REQUIRED core imgproc)
+
+#include_directories(
+#        ${CMAKE_SOURCE_DIR}/opencv/include/
+#)
+#add_library(libopencv_java4 STATIC IMPORTED)
+#set_target_properties(
+#        libopencv_java4
+#        PROPERTIES IMPORTED_LOCATION
+#        ${CMAKE_SOURCE_DIR}/opencv/${ANDROID_ABI}/libopencv_java4.so
+#        )
+
 target_link_libraries( # Specifies the target library.
         yolov5
 
@@ -110,7 +117,7 @@ target_link_libraries( # Specifies the target library.
         ${vulkan-lib}
         ${android-lib}
         ${jnigraphics-lib}
-        libopencv_java4)
+        ${OpenCV_LIBS})
 
 
 # Specifies libraries CMake should link to your target library. You
@@ -119,6 +126,7 @@ target_link_libraries( # Specifies the target library.
 
 target_link_libraries( # Specifies the target library.
         yolov5
+        ${OpenCV_LIBS}
 
         # Links the target library to the log library
         # included in the NDK.
