@@ -1,4 +1,4 @@
-# YOLOX Tiny + Ultra fast lane detection on Android with 8 FPS!
+# YOLOX Tiny + Ultra fast lane detection on Android with 15 FPS!
 
 Tested with HONOR 20PRO Kirin 980 
 
